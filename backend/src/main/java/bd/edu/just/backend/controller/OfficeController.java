@@ -30,6 +30,24 @@ public class OfficeController {
         return ResponseEntity.ok(offices);
     }
 
+    @GetMapping("/parent")
+    public ResponseEntity<List<Office>> getAllParentOffices() {
+        List<Office> parentOffices = officeService.getAllParentOffices();
+        return ResponseEntity.ok(parentOffices);
+    }
+
+    @GetMapping("/faculties")
+    public ResponseEntity<List<Office>> getAllFacultyOffices() {
+        List<Office> facultyOffices = officeService.getAllFacultyOffices();
+        return ResponseEntity.ok(facultyOffices);
+    }
+
+    @GetMapping("/departments")
+    public ResponseEntity<List<Office>> getAllDepartmentOffices() {
+        List<Office> departmentOffices = officeService.getAllDepartmentOffices();
+        return ResponseEntity.ok(departmentOffices);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Office> getOfficeById(@PathVariable Long id) {
         Office office = officeService.getOfficeById(id)

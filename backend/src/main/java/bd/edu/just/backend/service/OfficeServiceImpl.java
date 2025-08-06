@@ -1,5 +1,6 @@
 package bd.edu.just.backend.service;
 import bd.edu.just.backend.model.Office;
+import bd.edu.just.backend.model.OfficeType;
 import bd.edu.just.backend.repository.OfficeRepository;
 
 import jakarta.transaction.Transactional;
@@ -30,6 +31,27 @@ public class OfficeServiceImpl implements OfficeService {
     @Override
     public List<Office> getAllOffices() {
         return officeRepository.findAll();
+    }
+
+    @Override
+    public List<Office> getAllParentOffices() {
+        return officeRepository.findAll().stream()
+            .filter(office -> office.getParentOffice() == null)
+            .toList();
+    }
+
+    @Override
+    public List<Office> getAllFacultyOffices() {
+        return officeRepository.findAll().stream()
+            .filter(office -> office.getType() == OfficeType.FACULTY)
+            .toList();
+    }
+
+    @Override
+    public List<Office> getAllDepartmentOffices() {
+        return officeRepository.findAll().stream()
+            .filter(office -> office.getType() == OfficeType.DEPARTMENT)
+            .toList();
     }
 
     @Override
