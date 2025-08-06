@@ -18,6 +18,10 @@ This is a monorepo for the **Inventory Management System** of **Jashore Universi
 cd backend
 mvn spring-boot:run
 ```
+- Swagger url
+```bash
+/swagger-ui/index.html
+```
 
 ### Frontend
 
