@@ -12,6 +12,21 @@ export const getOffices = async () => {
   return response.data;
 };
 
+export const getParentOffices = async () => {
+  const response = await api.get("/offices/parent");
+  return response.data;
+};
+
+export const getFacultyOffices = async () => {
+  const response = await api.get("/offices/faculties");
+  return response.data;
+};
+
+export const getDepartmentOffices = async () => {
+  const response = await api.get("/offices/departments");
+  return response.data;
+};
+
 export const getOfficeById = async (id: number) => {
   const response = await api.get(`/offices/${id}`);
   return response.data;

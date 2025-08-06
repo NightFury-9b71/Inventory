@@ -13,16 +13,20 @@ import {
   User,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { SidebarItems } from '@/types/constant';
+
+import { useLayout } from './layout-context';
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);      // for mobile sidebar
   const [isCollapsed, setIsCollapsed] = useState(false); // for desktop collapse
+  const { selectedItem, setSelectedItem } = useLayout();
 
   const sidebarItems = [
-    { icon: Home, label: 'Dashboard', href: '#' },
-    { icon: Users, label: 'Team', href: '#' },
-    { icon: FileText, label: 'Documents', href: '#' },
-    { icon: BarChart3, label: 'Analytics', href: '#' },
+    { icon: Home, label: SidebarItems.ALL_OFFICES, href: '#' },
+    { icon: Users, label: SidebarItems.PARENT_OFFICES, href: '#' },
+    { icon: FileText, label: SidebarItems.FACULTIES, href: '#' },
+    { icon: BarChart3, label: SidebarItems.DEPARTMENTS, href: '#' },
     { icon: Settings, label: 'Settings', href: '#' },
   ];
 
@@ -82,18 +86,18 @@ export default function Sidebar() {
           {/* Navigation */}
           <nav className="flex-1 p-4 space-y-2">
             {sidebarItems.map((item, index) => (
-              <a
+              <button
                 key={index}
-                href={item.href}
+                onClick={() => setSelectedItem(item.label)}
                 className={`
-                  flex items-center gap-3 px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors
-                  ${isCollapsed ? 'justify-center' : ''}
+                  flex items-center w-full gap-3 px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors
+                  ${isCollapsed ? 'justify-center' : ''} ${selectedItem === item.label ? 'bg-gray-200' : ''}
                 `}
                 title={isCollapsed ? item.label : ''}
               >
                 <item.icon className="h-5 w-5 flex-shrink-0" />
                 {!isCollapsed && <span>{item.label}</span>}
-              </a>
+              </button>
             ))}
           </nav>
 
