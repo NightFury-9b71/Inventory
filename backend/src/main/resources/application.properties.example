@@ -9,3 +9,8 @@ spring.jpa.show-sql=false
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
 
 logging.level.root=ERROR
+# logging.file.name=logs/app.log
+logging.level.bd.edu.just.backend=DEBUG
+
+jwt.secret=replace_with_a_very_long_random_secret_key_for_demo_purposes
+jwt.expiration-ms=3600000
