@@ -1,11 +1,39 @@
 import axios from "axios";
+import Cookies from 'js-cookie'; // For browser cookies
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api",
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true,
 });
+
+api.interceptors.request.use(config => {
+  const token = Cookies.get('authToken');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+
+interface LoginFormData {
+  username: string;
+  password: string;
+}
+
+export const loginUser = async (credentials: LoginFormData): Promise<{ user: any; token: string }> => {
+  const { data } = await api.post("/auth/login", credentials);
+  Cookies.set("authToken", data.token, { expires: 7, sameSite: "lax" });  
+  return data;
+};
+
+export const logoutUser = async() => {
+  Cookies.remove("authToken");
+  window.location.href = "/login";
+}
+
 
 export const getOffices = async () => {
   const response = await api.get("/offices");
@@ -46,3 +74,5 @@ export const deleteOffice = async (id: number) => {
   const response = await api.delete(`/offices/${id}`);
   return response.data;
 }
+
+export default api;

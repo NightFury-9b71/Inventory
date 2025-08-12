@@ -1,7 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getOffices, getParentOffices, getFacultyOffices, getDepartmentOffices } from "@/lib/api";
+import {
+  getOffices,
+  getParentOffices,
+  getFacultyOffices,
+  getDepartmentOffices,
+} from "@/lib/api";
 import { Office } from "@/types/office";
 import {
   Table,
@@ -14,27 +19,30 @@ import {
 
 import { useLayout } from "@/components/layout-context";
 import { SidebarItems } from "@/types/constant";
-
+import { useAuth } from "@/auth-context";
+import axios from "axios";
 
 export default function OfficeTablePage() {
   const [offices, setOffices] = useState<Office[]>([]);
   const [loading, setLoading] = useState(true);
-  const {selectedItem} = useLayout();
+  const [error, setError] = useState<string | null>(null);
+
+  const { selectedItem } = useLayout();
+  const { user } = useAuth();
 
   useEffect(() => {
-    
     switch (selectedItem) {
       case SidebarItems.ALL_OFFICES:
-        loadAllOffices();
+        loadData(getOffices);
         break;
-      case SidebarItems.PARENT_OFFICES: 
-        loadParentOffices();
+      case SidebarItems.PARENT_OFFICES:
+        loadData(getParentOffices);
         break;
       case SidebarItems.FACULTIES:
-        loadFacultyOffices();
+        loadData(getFacultyOffices);
         break;
       case SidebarItems.DEPARTMENTS:
-        loadDepartmentOffices();
+        loadData(getDepartmentOffices);
         break;
       default:
         setOffices([]);
@@ -42,61 +50,41 @@ export default function OfficeTablePage() {
     }
   }, [selectedItem]);
 
-  const loadAllOffices = async () => {
+  const loadData = async (fetchFn: () => Promise<Office[]>) => {
     setLoading(true);
+    setError(null);
     try {
-      const data = await getOffices();
+      const data = await fetchFn();
       setOffices(data);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to fetch offices", err);
+      if (axios.isAxiosError(err)) {
+        if (err.response?.status === 401) {
+          setError("You are not authorized to view this content.");
+        } else {
+          setError("An error occurred while fetching data.");
+        }
+      } else {
+        setError("Unexpected error occurred.");
+      }
+      setOffices([]);
     } finally {
       setLoading(false);
     }
   };
-
-  const loadParentOffices = async () => {
-    setLoading(true);
-    try {
-      const data = await getParentOffices();
-      setOffices(data);
-    } catch (err) {
-      console.error("Failed to fetch parent offices", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadFacultyOffices = async () => {
-      setLoading(true);
-    try {
-      const data = await getFacultyOffices();
-      setOffices(data);
-    } catch (err) {
-      console.error("Failed to fetch parent offices", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadDepartmentOffices = async () => {
-    setLoading(true);
-    try {
-      const data = await getDepartmentOffices();
-      setOffices(data);
-    } catch (err) {
-      console.error("Failed to fetch parent offices", err);
-    } finally {
-      setLoading(false);
-    }
-  };  
 
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Total {offices.length} Entries </h1>
+        <h1 className="text-2xl font-bold">
+          {error ? "Access Denied" : `Total ${offices.length} Entries`}
+        </h1>
       </div>
+
       {loading ? (
         <p>Loading...</p>
+      ) : error ? (
+        <div className="text-red-600 font-semibold">{error}</div>
       ) : (
         <Table>
           <TableHeader>
@@ -116,7 +104,6 @@ export default function OfficeTablePage() {
                 <TableCell>{office.code}</TableCell>
                 <TableCell>{office.type}</TableCell>
                 <TableCell>{office.isActive ? "Active" : "Inactive"}</TableCell>
-            
               </TableRow>
             ))}
           </TableBody>

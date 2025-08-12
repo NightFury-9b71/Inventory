@@ -1,5 +1,6 @@
-import './globals.css';
+import '@/globals.css';
 import LayoutWrapper from '@/components/LayoutWrapper';
+import { AuthProvider } from '@/auth-context';
 
 
 export const metadata = {
@@ -15,9 +16,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <LayoutWrapper>
-          {children}
-        </LayoutWrapper>
+          <AuthProvider>
+            <LayoutWrapper>
+              {children}
+            </LayoutWrapper>
+          </AuthProvider>
       </body>
     </html>
   );

@@ -1,3 +1,4 @@
+import { SidebarItems } from '@/types/constant';
 import React, { createContext, useContext, useState } from 'react';
 
 type LayoutContextType = {
@@ -8,7 +9,7 @@ type LayoutContextType = {
 const LayoutContext = createContext<LayoutContextType | undefined>(undefined);
 
 export const LayoutProvider = ({ children }: { children: React.ReactNode }) => {
-  const [selectedItem, setSelectedItem] = useState<string | null>(null);
+  const [selectedItem, setSelectedItem] = useState<string | null>(SidebarItems.ALL_OFFICES);
 
   return (
     <LayoutContext.Provider value={{ selectedItem, setSelectedItem }}>
