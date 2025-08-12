@@ -33,6 +33,7 @@ public class OfficeController {
     }
 
     @GetMapping("/parent")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Office>> getAllParentOffices() {
         List<Office> parentOffices = officeService.getAllParentOffices();
         return ResponseEntity.ok(parentOffices);
