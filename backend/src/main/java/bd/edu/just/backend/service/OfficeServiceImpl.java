@@ -25,6 +25,11 @@ public class OfficeServiceImpl implements OfficeService {
 
     @Override
     public Office createOffice(Office office) {
+        if (office.getParentId() != null) {
+            Office parent = officeRepository.findById(office.getParentId())
+                .orElseThrow(() -> new RuntimeException("Parent office not found"));
+            office.setParentOffice(parent);
+        }
         return officeRepository.save(office);
     }
 
@@ -69,7 +74,13 @@ public class OfficeServiceImpl implements OfficeService {
             office.setDescription(updatedOffice.getDescription());
             office.setIsActive(updatedOffice.getIsActive());
             office.setOrderIndex(updatedOffice.getOrderIndex());
-            office.setParentOffice(updatedOffice.getParentOffice());
+            if (updatedOffice.getParentId() != null) {
+                Office parent = officeRepository.findById(updatedOffice.getParentId())
+                    .orElseThrow(() -> new RuntimeException("Parent office not found"));
+                office.setParentOffice(parent);
+            } else if (updatedOffice.getParentOffice() != null) {
+                office.setParentOffice(updatedOffice.getParentOffice());
+            }
             return officeRepository.save(office);
         }).orElseThrow(() -> new RuntimeException("Office not found"));
     }

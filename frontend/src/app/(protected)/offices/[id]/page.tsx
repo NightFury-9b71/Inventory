@@ -6,7 +6,7 @@ import { getOfficeById } from "@/lib/api";
 import { Office } from "@/types/office";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Building, MapPin, Hash, CheckCircle, XCircle } from "lucide-react";
+import { ArrowLeft, Building, MapPin, Hash, CheckCircle, XCircle, Edit, Plus } from "lucide-react";
 import { useAuth } from "@/auth-context";
 
 export default function OfficeDetailPage() {
@@ -67,14 +67,31 @@ export default function OfficeDetailPage() {
   return (
     <div className="p-6">
       <div className="mb-6">
-        <Button
-          variant="outline"
-          onClick={() => router.back()}
-          className="mb-4"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Offices
-        </Button>
+        <div className="flex items-center justify-between">
+          <Button
+            variant="outline"
+            onClick={() => router.back()}
+            className="mb-4"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Offices
+          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => router.push(`/offices/${officeId}/edit`)}
+            >
+              <Edit className="h-4 w-4 mr-2" />
+              Edit Office
+            </Button>
+            <Button
+              onClick={() => router.push(`/offices/${officeId}/create-child`)}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Child Office
+            </Button>
+          </div>
+        </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">

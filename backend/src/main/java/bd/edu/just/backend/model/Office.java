@@ -36,6 +36,9 @@ public class Office {
     @JsonBackReference
     private Office parentOffice;
 
+    @Transient
+    private Long parentId;
+
     @OneToMany(mappedBy = "office", cascade = CascadeType.ALL)
     private List<ItemDistribution> itemDistributions;
 

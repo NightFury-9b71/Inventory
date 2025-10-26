@@ -1,6 +1,7 @@
 import '@/globals.css';
 import LayoutWrapper from '@/components/LayoutWrapper';
 import { AuthProvider } from '@/auth-context';
+import { Toaster } from 'sonner';
 
 
 export const metadata = {
@@ -21,6 +22,7 @@ export default function RootLayout({
               {children}
             </LayoutWrapper>
           </AuthProvider>
+          <Toaster position='top-right' richColors />
       </body>
     </html>
   );
