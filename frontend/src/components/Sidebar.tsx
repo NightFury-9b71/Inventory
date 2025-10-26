@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   ChevronLeft,
   ChevronRight,
@@ -86,18 +86,21 @@ export default function Sidebar() {
           {/* Navigation */}
           <nav className="flex-1 p-4 space-y-2">
             {sidebarItems.map((item, index) => (
-              <button
-                key={index}
-                onClick={() => setSelectedItem(item.label)}
-                className={`
-                  flex items-center w-full gap-3 px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors
-                  ${isCollapsed ? 'justify-center' : ''} ${selectedItem === item.label ? 'bg-gray-200' : ''}
-                `}
-                title={isCollapsed ? item.label : ''}
-              >
-                <item.icon className="h-5 w-5 flex-shrink-0" />
-                {!isCollapsed && <span>{item.label}</span>}
-              </button>
+              <div key={index}>
+                <button
+                  onClick={() => {
+                    setSelectedItem(item.label);
+                  }}
+                  className={`
+                    flex items-center w-full gap-3 px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors
+                    ${isCollapsed ? 'justify-center' : ''} ${selectedItem === item.label ? 'bg-gray-200' : ''}
+                  `}
+                  title={isCollapsed ? item.label : ''}
+                >
+                  <item.icon className="h-5 w-5 flex-shrink-0" />
+                  {!isCollapsed && <span>{item.label}</span>}
+                </button>
+              </div>
             ))}
           </nav>
 
