@@ -1,5 +1,7 @@
 package bd.edu.just.backend.controller;
 
+import bd.edu.just.backend.dto.UserDTO;
+import bd.edu.just.backend.mapper.UserMapper;
 import bd.edu.just.backend.model.JwtResponse;
 import bd.edu.just.backend.model.LoginRequest;
 import bd.edu.just.backend.model.Role;
@@ -29,15 +31,17 @@ public class AuthController {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
 
     public AuthController(AuthenticationManager authenticationManager, JwtUtils jwtUtils,
                           UserRepository userRepository, RoleRepository roleRepository,
-                          PasswordEncoder passwordEncoder) {
+                          PasswordEncoder passwordEncoder, UserMapper userMapper) {
         this.authenticationManager = authenticationManager;
         this.jwtUtils = jwtUtils;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.userMapper = userMapper;
     }
 
     @PostMapping("/login")
@@ -48,7 +52,14 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = jwtUtils.generateJwtToken(authentication.getName());
 
-        return ResponseEntity.ok(new JwtResponse(token));
+        // Get user details
+        User user = userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Map to DTO
+        UserDTO userDTO = userMapper.toDTO(user);
+
+        return ResponseEntity.ok(new JwtResponse(token, userDTO));
     }
 
     @PostMapping("/register")

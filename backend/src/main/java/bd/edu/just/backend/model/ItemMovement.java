@@ -49,6 +49,9 @@ public class ItemMovement {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
+        if (dateMoved == null) {
+            dateMoved = LocalDateTime.now();
+        }
     }
 
     @PreUpdate
@@ -58,5 +61,93 @@ public class ItemMovement {
 
     public ItemMovement() {}
 
+    public ItemMovement(Item item, Office fromOffice, Office toOffice, Employee employee, Integer quantity) {
+        this.item = item;
+        this.fromOfficeId = fromOffice;
+        this.toOfficeId = toOffice;
+        this.employee = employee;
+        this.quantity = quantity;
+        this.isActive = true;
+    }
 
+    // Getters and Setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Item getItem() {
+        return item;
+    }
+
+    public void setItem(Item item) {
+        this.item = item;
+    }
+
+    public Office getFromOfficeId() {
+        return fromOfficeId;
+    }
+
+    public void setFromOfficeId(Office fromOfficeId) {
+        this.fromOfficeId = fromOfficeId;
+    }
+
+    public Office getToOfficeId() {
+        return toOfficeId;
+    }
+
+    public void setToOfficeId(Office toOfficeId) {
+        this.toOfficeId = toOfficeId;
+    }
+
+    public Employee getEmployee() {
+        return employee;
+    }
+
+    public void setEmployee(Employee employee) {
+        this.employee = employee;
+    }
+
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
+    }
+
+    public LocalDateTime getDateMoved() {
+        return dateMoved;
+    }
+
+    public void setDateMoved(LocalDateTime dateMoved) {
+        this.dateMoved = dateMoved;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
 }

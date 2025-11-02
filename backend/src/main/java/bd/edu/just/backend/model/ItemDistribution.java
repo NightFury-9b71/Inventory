@@ -50,6 +50,9 @@ public class ItemDistribution {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
+        if (dateDistributed == null) {
+            dateDistributed = LocalDateTime.now();
+        }
     }
 
     @PreUpdate
@@ -58,5 +61,94 @@ public class ItemDistribution {
     }
 
     public ItemDistribution() {}
-        
+
+    public ItemDistribution(Item item, Office office, Employee employee, Integer quantity) {
+        this.item = item;
+        this.office = office;
+        this.employee = employee;
+        this.quantity = quantity;
+        this.isActive = true;
+        this.status = DistributionStatus.PENDING;
+    }
+
+    // Getters and Setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Item getItem() {
+        return item;
+    }
+
+    public void setItem(Item item) {
+        this.item = item;
+    }
+
+    public Office getOffice() {
+        return office;
+    }
+
+    public void setOffice(Office office) {
+        this.office = office;
+    }
+
+    public Employee getEmployee() {
+        return employee;
+    }
+
+    public void setEmployee(Employee employee) {
+        this.employee = employee;
+    }
+
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
+    }
+
+    public LocalDateTime getDateDistributed() {
+        return dateDistributed;
+    }
+
+    public void setDateDistributed(LocalDateTime dateDistributed) {
+        this.dateDistributed = dateDistributed;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
+
+    public DistributionStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(DistributionStatus status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
 }

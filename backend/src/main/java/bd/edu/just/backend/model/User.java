@@ -16,6 +16,12 @@ public class User {
     @Column(nullable = false, unique = true)
     private String username;
 
+    @Column(unique = true)
+    private String email;
+
+    @Column
+    private String name;
+
     @Column(nullable = false)
     private String password;
 
@@ -25,6 +31,10 @@ public class User {
         inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles;
 
+    @ManyToOne
+    @JoinColumn(name = "office_id")
+    private Office office;
+
     // getters and setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -32,9 +42,18 @@ public class User {
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }
 
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
 
     public Set<Role> getRoles() { return roles; }
     public void setRoles(Set<Role> roles) { this.roles = roles; }
+
+    public Office getOffice() { return office; }
+    public void setOffice(Office office) { this.office = office; }
 }

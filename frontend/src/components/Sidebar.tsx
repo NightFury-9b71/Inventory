@@ -1,33 +1,75 @@
 'use client';
 
 import React, { useState } from 'react';
-import {
-  ChevronLeft,
-  ChevronRight,
-  Home,
-  Users,
-  Settings,
+import { 
+  ChevronLeft, 
+  ChevronRight, 
+  Home, 
+  Settings, 
+  BarChart3, 
+  Menu, 
+  LogOut,
+  Package,
+  FolderTree,
+  ShoppingCart,
+  Send,
+  ArrowLeftRight,
   FileText,
-  BarChart3,
-  Menu,
-  User,
+  QrCode,
+  AlertTriangle,
+  Building2,
+  TrendingUp
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SidebarItems } from '@/types/constant';
-
-import { useLayout } from './layout-context';
+import Link from 'next/link';
+import { useAuth } from '@/auth-context';
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);      // for mobile sidebar
   const [isCollapsed, setIsCollapsed] = useState(false); // for desktop collapse
-  const { selectedItem, setSelectedItem } = useLayout();
+  const [selectedItem, setSelectedItem] = useState<string | null>(SidebarItems.ALL_OFFICES);
+  const { user, logout } = useAuth();
 
-  const sidebarItems = [
-    { icon: Home, label: SidebarItems.ALL_OFFICES, href: '#' },
-    { icon: Users, label: SidebarItems.PARENT_OFFICES, href: '#' },
-    { icon: FileText, label: SidebarItems.FACULTIES, href: '#' },
-    { icon: BarChart3, label: SidebarItems.DEPARTMENTS, href: '#' },
-    { icon: Settings, label: 'Settings', href: '#' },
+  const sidebarSections = [
+    {
+      title: 'Main',
+      items: [
+        { icon: Home, label: 'Dashboard', href: '/dashboard' },
+        { icon: Building2, label: 'Offices', href: '/offices' },
+      ]
+    },
+    {
+      title: 'Inventory',
+      items: [
+        { icon: Package, label: 'Items', href: '/items' },
+        { icon: FolderTree, label: 'Categories', href: '/categories' },
+        { icon: AlertTriangle, label: 'Low Stock', href: '/items?filter=low-stock' },
+      ]
+    },
+    {
+      title: 'Operations',
+      items: [
+        { icon: ShoppingCart, label: 'Purchases', href: '/purchases' },
+        { icon: Send, label: 'Distributions', href: '/distributions' },
+        { icon: ArrowLeftRight, label: 'Movements', href: '/movements' },
+      ]
+    },
+    {
+      title: 'Reports & Tools',
+      items: [
+        { icon: BarChart3, label: 'Reports', href: '/reports' },
+        { icon: QrCode, label: 'Barcode Scan', href: '/barcode' },
+        { icon: TrendingUp, label: 'Analytics', href: '/analytics' },
+      ]
+    },
+    {
+      title: 'System',
+      items: [
+        { icon: FileText, label: 'Audit Logs', href: '/logs' },
+        { icon: Settings, label: 'Settings', href: '/settings' },
+      ]
+    }
   ];
 
   const toggleCollapse = () => {
@@ -36,6 +78,10 @@ export default function Sidebar() {
 
   const toggleMobile = () => {
     setIsOpen((prev) => !prev);
+  };
+
+  const handleLogout = () => {
+    logout();
   };
 
   return (
@@ -55,12 +101,18 @@ export default function Sidebar() {
           md:translate-x-0
           ${isCollapsed ? 'md:w-16' : 'md:w-64'}
           w-64
+          overflow-y-auto
         `}
       >
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-gray-200">
-            {!isCollapsed && <span className="font-semibold text-lg">Menu</span>}
+            {!isCollapsed && (
+              <div className="flex items-center gap-2">
+                <Package className="h-5 w-5 text-blue-600" />
+                <span className="font-semibold text-lg">Inventory</span>
+              </div>
+            )}
             <Button
               variant="ghost"
               size="sm"
@@ -84,49 +136,78 @@ export default function Sidebar() {
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-2">
-            {sidebarItems.map((item, index) => (
-              <div key={index}>
-                <button
-                  onClick={() => {
-                    setSelectedItem(item.label);
-                  }}
-                  className={`
-                    flex items-center w-full gap-3 px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors
-                    ${isCollapsed ? 'justify-center' : ''} ${selectedItem === item.label ? 'bg-gray-200' : ''}
-                  `}
-                  title={isCollapsed ? item.label : ''}
-                >
-                  <item.icon className="h-5 w-5 flex-shrink-0" />
-                  {!isCollapsed && <span>{item.label}</span>}
-                </button>
+          <nav className="flex-1 p-4 space-y-6">
+            {sidebarSections.map((section, sectionIndex) => (
+              <div key={sectionIndex}>
+                {!isCollapsed && (
+                  <h3 className="px-3 mb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    {section.title}
+                  </h3>
+                )}
+                <div className="space-y-1">
+                  {section.items.map((item, itemIndex) => (
+                    <Link
+                      key={itemIndex}
+                      href={item.href}
+                      onClick={() => {
+                        setSelectedItem(item.label);
+                        setIsOpen(false); // Close mobile sidebar on navigation
+                      }}
+                      className={`
+                        flex items-center w-full gap-3 px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors
+                        ${isCollapsed ? 'justify-center' : ''} 
+                        ${selectedItem === item.label ? 'bg-blue-50 text-blue-700 font-medium' : ''}
+                      `}
+                      title={isCollapsed ? item.label : ''}
+                    >
+                      <item.icon className={`h-5 w-5 flex-shrink-0 ${selectedItem === item.label ? 'text-blue-600' : ''}`} />
+                      {!isCollapsed && <span>{item.label}</span>}
+                    </Link>
+                  ))}
+                </div>
               </div>
             ))}
+            
+            {/* Logout Button */}
+            <div className="pt-4 border-t border-gray-200">
+              <Button
+                variant="ghost"
+                onClick={handleLogout}
+                className={`
+                  w-full gap-3 px-3 py-2 text-red-600 hover:bg-red-50 hover:text-red-700
+                  ${isCollapsed ? 'justify-center' : 'justify-start'}
+                `}
+                title={isCollapsed ? 'Logout' : ''}
+              >
+                <LogOut className="h-5 w-5 flex-shrink-0" />
+                {!isCollapsed && <span>Logout</span>}
+              </Button>
+            </div>
           </nav>
 
           {/* Footer */}
-          <div className="p-4 border-t border-gray-200">
+          {/* <div className="p-4 border-t border-gray-200">
             <div
               className={`
                 flex items-center gap-3 px-3 py-2
                 ${isCollapsed ? 'justify-center' : ''}
               `}
             >
-              <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
                 <User className="h-4 w-4 text-white" />
               </div>
               {!isCollapsed && (
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-900 truncate">
-                    John Doe
+                    {user?.name || user?.username || 'User'}
                   </p>
                   <p className="text-xs text-gray-500 truncate">
-                    john@example.com
+                    {user?.role || 'Administrator'}
                   </p>
                 </div>
               )}
             </div>
-          </div>
+          </div> */}
         </div>
       </aside>
 

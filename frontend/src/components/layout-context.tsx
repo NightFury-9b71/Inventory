@@ -1,3 +1,5 @@
+"use client"
+
 import { SidebarItems } from '@/types/constant';
 import React, { createContext, useContext, useState } from 'react';
 
