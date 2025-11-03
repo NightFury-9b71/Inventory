@@ -1,42 +1,28 @@
 "use client";
 
 import React from "react";
+import { CategoryFormData } from "@/types/inventory";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Save, AlertCircle } from "lucide-react";
 
-type OfficeFormData = {
-  name: string;
-  nameBn: string;
-  code: string;
-  type: string;
-  description: string;
-  orderIndex: string;
-  isActive: boolean;
-};
+type CategoryFormType = CategoryFormData & { isActive?: boolean };
 
 type Props = {
-  office: OfficeFormData;
+  category: CategoryFormType;
   saving: boolean;
-  error: string | null;
+  error?: string | null;
   onInputChange: (field: string, value: any) => void;
   onSubmit: (e: React.FormEvent) => void;
   onCancel: () => void;
 };
 
-export default function CreateChildForm({
-  office,
+export default function EditCategoryForm({
+  category,
   saving,
   error,
   onInputChange,
@@ -46,7 +32,7 @@ export default function CreateChildForm({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Add Child Office</CardTitle>
+        <CardTitle>Edit Category</CardTitle>
       </CardHeader>
       <CardContent>
         {error && (
@@ -61,90 +47,52 @@ export default function CreateChildForm({
 
         <form onSubmit={onSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Office Name */}
+            {/* Category Name */}
             <div>
               <Label htmlFor="name">
-                Office Name <span className="text-red-500">*</span>
+                Category Name <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="name"
-                value={office.name}
+                value={category.name}
                 onChange={(e) => onInputChange("name", e.target.value)}
-                placeholder="Enter office name"
+                placeholder="Enter category name"
                 required
               />
             </div>
 
-            {/* Office Name (Bangla) */}
+            {/* Category Name (Bangla) */}
             <div>
-              <Label htmlFor="nameBn">
-                Office Name (Bangla) <span className="text-red-500">*</span>
-              </Label>
+              <Label htmlFor="nameBn">Category Name (Bangla)</Label>
               <Input
                 id="nameBn"
-                value={office.nameBn}
+                value={category.nameBn || ""}
                 onChange={(e) => onInputChange("nameBn", e.target.value)}
-                placeholder="অফিস নাম"
-                required
+                placeholder="বিভাগ নাম"
               />
             </div>
 
-            {/* Office Code */}
+            {/* Category Code */}
             <div>
               <Label htmlFor="code">
-                Office Code <span className="text-red-500">*</span>
+                Category Code <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="code"
-                value={office.code}
+                value={category.code}
                 onChange={(e) => onInputChange("code", e.target.value)}
-                placeholder="e.g., OFF-001"
+                placeholder="e.g., CAT-001"
+                disabled
                 required
               />
-            </div>
-
-            {/* Office Type */}
-            <div>
-              <Label htmlFor="type">
-                Office Type <span className="text-red-500">*</span>
-              </Label>
-              <Select
-                value={office.type}
-                onValueChange={(value: string) => onInputChange("type", value)}
-                required
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select office type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="OFFICE">Office</SelectItem>
-                  <SelectItem value="FACULTY">Faculty</SelectItem>
-                  <SelectItem value="DEPARTMENT">Department</SelectItem>
-                  <SelectItem value="FACILITY">Facility</SelectItem>
-                  <SelectItem value="HALL">Hall</SelectItem>
-                  <SelectItem value="INSTITUTE">Institute</SelectItem>
-                  <SelectItem value="CENTER">Center</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Order Index */}
-            <div>
-              <Label htmlFor="orderIndex">Order Index</Label>
-              <Input
-                id="orderIndex"
-                type="number"
-                value={office.orderIndex}
-                onChange={(e) => onInputChange("orderIndex", e.target.value)}
-                placeholder="Display order"
-              />
+              <p className="text-xs text-slate-500 mt-1">Code cannot be changed</p>
             </div>
 
             {/* Active Status */}
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="isActive"
-                checked={office.isActive}
+                checked={category.isActive}
                 onCheckedChange={(checked) => onInputChange("isActive", checked)}
               />
               <Label htmlFor="isActive" className="cursor-pointer">
@@ -158,9 +106,9 @@ export default function CreateChildForm({
             <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
-              value={office.description}
+              value={category.description || ""}
               onChange={(e) => onInputChange("description", e.target.value)}
-              placeholder="Enter office description (optional)"
+              placeholder="Enter category description (optional)"
               rows={4}
               className="resize-none"
             />
@@ -170,7 +118,7 @@ export default function CreateChildForm({
           <div className="flex gap-2 pt-4 border-t">
             <Button type="submit" disabled={saving}>
               <Save className="h-4 w-4 mr-2" />
-              {saving ? "Adding..." : "Add Child Office"}
+              {saving ? "Saving..." : "Save Changes"}
             </Button>
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancel

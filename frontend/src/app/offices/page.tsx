@@ -19,7 +19,9 @@ function OfficeTableContent() {
     setTypeFilter,
     statusFilter,
     setStatusFilter,
-    clearFilters
+    clearFilters,
+    expandedOffices,
+    toggleExpand
   } = useOfficeTableContext();
 
   const { data: offices = [] } = useOffices("all");
@@ -50,7 +52,7 @@ function OfficeTableContent() {
 
       {/* Body: Data fetching + table rendering */}
       <OfficeBodyContainer>
-        <PageTable>
+        <PageTable expandedItems={expandedOffices} toggleExpand={toggleExpand}>
           <TableComponent>
             <TableHeaderRow>
               <TableHeaderCell>Name</TableHeaderCell>

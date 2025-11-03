@@ -11,7 +11,6 @@ This is a monorepo for the **Inventory Management System** of **Jashore Universi
 
 ### Backend
 
-- Create the backend project using [Spring Initializr](https://start.spring.io)
 - Run the backend server:
 
 ```bash
@@ -25,11 +24,8 @@ mvn spring-boot:run
 
 ### Frontend
 
-- Create the frontend app using Next.js:
-```bash
-npx create-next-app@latest frontend
-```
 - Run the frontend server:
+
 ```bash
 cd frontend
 npm i 

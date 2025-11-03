@@ -68,8 +68,8 @@ function PurchasesPageContent() {
               <TableHeaderCell>Item</TableHeaderCell>
               <TableHeaderCell>Vendor</TableHeaderCell>
               <TableHeaderCell>Quantity</TableHeaderCell>
-              <TableHeaderCell>Unit Price</TableHeaderCell>
-              <TableHeaderCell>Total</TableHeaderCell>
+              <TableHeaderCell>Unit Price (Tk)</TableHeaderCell>
+              <TableHeaderCell>Total (Tk)</TableHeaderCell>
               <TableHeaderCell>Invoice</TableHeaderCell>
             </TableHeaderRow>
             <GenericTableBodyRows 
@@ -91,10 +91,10 @@ function PurchasesPageContent() {
                     {purchase.quantity}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                    ${purchase.unitPrice.toFixed(2)}
+                    ৳{purchase.unitPrice.toFixed(2)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
-                    ${purchase.totalPrice.toFixed(2)}
+                    ৳{purchase.totalPrice.toFixed(2)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
                     {purchase.invoiceNumber || '-'}

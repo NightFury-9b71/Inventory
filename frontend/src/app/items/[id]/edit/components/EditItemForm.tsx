@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { ItemFormData } from "@/types/inventory";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,38 +16,33 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Save, AlertCircle } from "lucide-react";
+import { useCategories } from "@/hooks/queries/useCategories";
 
-type OfficeFormData = {
-  name: string;
-  nameBn: string;
-  code: string;
-  type: string;
-  description: string;
-  orderIndex: string;
-  isActive: boolean;
-};
+type ItemFormType = ItemFormData & { isActive?: boolean };
 
 type Props = {
-  office: OfficeFormData;
+  item: ItemFormType;
   saving: boolean;
-  error: string | null;
+  error?: string | null;
   onInputChange: (field: string, value: any) => void;
   onSubmit: (e: React.FormEvent) => void;
   onCancel: () => void;
 };
 
-export default function CreateChildForm({
-  office,
+export default function EditItemForm({
+  item,
   saving,
   error,
   onInputChange,
   onSubmit,
   onCancel,
 }: Props) {
+  const { data: categories = [], isLoading: categoriesLoading } = useCategories();
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Add Child Office</CardTitle>
+        <CardTitle>Edit Item</CardTitle>
       </CardHeader>
       <CardContent>
         {error && (
@@ -61,90 +57,122 @@ export default function CreateChildForm({
 
         <form onSubmit={onSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Office Name */}
+            {/* Item Name */}
             <div>
               <Label htmlFor="name">
-                Office Name <span className="text-red-500">*</span>
+                Item Name <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="name"
-                value={office.name}
+                value={item.name}
                 onChange={(e) => onInputChange("name", e.target.value)}
-                placeholder="Enter office name"
+                placeholder="Enter item name"
                 required
               />
             </div>
 
-            {/* Office Name (Bangla) */}
+            {/* Item Name (Bangla) */}
             <div>
-              <Label htmlFor="nameBn">
-                Office Name (Bangla) <span className="text-red-500">*</span>
-              </Label>
+              <Label htmlFor="nameBn">Item Name (Bangla)</Label>
               <Input
                 id="nameBn"
-                value={office.nameBn}
+                value={item.nameBn || ""}
                 onChange={(e) => onInputChange("nameBn", e.target.value)}
-                placeholder="অফিস নাম"
-                required
+                placeholder="আইটেম নাম"
               />
             </div>
 
-            {/* Office Code */}
+            {/* Item Code */}
             <div>
               <Label htmlFor="code">
-                Office Code <span className="text-red-500">*</span>
+                Item Code <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="code"
-                value={office.code}
+                value={item.code}
                 onChange={(e) => onInputChange("code", e.target.value)}
-                placeholder="e.g., OFF-001"
+                placeholder="e.g., ITM-001"
+                disabled
                 required
               />
+              <p className="text-xs text-slate-500 mt-1">Code cannot be changed</p>
             </div>
 
-            {/* Office Type */}
+            {/* Category */}
             <div>
-              <Label htmlFor="type">
-                Office Type <span className="text-red-500">*</span>
+              <Label htmlFor="categoryId">
+                Category <span className="text-red-500">*</span>
               </Label>
               <Select
-                value={office.type}
-                onValueChange={(value: string) => onInputChange("type", value)}
+                value={item.categoryId?.toString()}
+                onValueChange={(value) => onInputChange("categoryId", Number(value))}
+                disabled={categoriesLoading}
                 required
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select office type" />
+                  <SelectValue placeholder={
+                    categoriesLoading 
+                      ? "Loading categories..." 
+                      : "Select a category"
+                  } />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="OFFICE">Office</SelectItem>
-                  <SelectItem value="FACULTY">Faculty</SelectItem>
-                  <SelectItem value="DEPARTMENT">Department</SelectItem>
-                  <SelectItem value="FACILITY">Facility</SelectItem>
-                  <SelectItem value="HALL">Hall</SelectItem>
-                  <SelectItem value="INSTITUTE">Institute</SelectItem>
-                  <SelectItem value="CENTER">Center</SelectItem>
+                  {categories
+                    .filter((cat) => cat.isActive)
+                    .map((category) => (
+                      <SelectItem key={category.id} value={category.id.toString()}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
             </div>
 
-            {/* Order Index */}
+            {/* Units */}
             <div>
-              <Label htmlFor="orderIndex">Order Index</Label>
+              <Label htmlFor="units">Unit Type</Label>
               <Input
-                id="orderIndex"
-                type="number"
-                value={office.orderIndex}
-                onChange={(e) => onInputChange("orderIndex", e.target.value)}
-                placeholder="Display order"
+                id="units"
+                value={item.units || ""}
+                onChange={(e) => onInputChange("units", e.target.value)}
+                placeholder="e.g., pieces, kg, liters"
               />
+            </div>
+
+            {/* Unit Price */}
+            <div>
+              <Label htmlFor="unitPrice">Unit Price (Tk)</Label>
+              <Input
+                id="unitPrice"
+                type="number"
+                step="0.01"
+                min="0"
+                value={item.unitPrice || 0}
+                onChange={(e) => onInputChange("unitPrice", parseFloat(e.target.value) || 0)}
+                placeholder="0.00"
+              />
+            </div>
+
+            {/* Quantity (disabled) */}
+            <div>
+              <Label htmlFor="quantity">Current Quantity</Label>
+              <Input
+                id="quantity"
+                type="number"
+                min="0"
+                value={item.quantity}
+                disabled
+              />
+              <p className="text-xs text-slate-500 mt-1">
+                Stock quantity cannot be edited directly. Use purchases or distributions to adjust stock.
+              </p>
             </div>
 
             {/* Active Status */}
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="isActive"
-                checked={office.isActive}
+                checked={item.isActive}
                 onCheckedChange={(checked) => onInputChange("isActive", checked)}
               />
               <Label htmlFor="isActive" className="cursor-pointer">
@@ -158,9 +186,9 @@ export default function CreateChildForm({
             <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
-              value={office.description}
+              value={item.description || ""}
               onChange={(e) => onInputChange("description", e.target.value)}
-              placeholder="Enter office description (optional)"
+              placeholder="Enter item description (optional)"
               rows={4}
               className="resize-none"
             />
@@ -170,7 +198,7 @@ export default function CreateChildForm({
           <div className="flex gap-2 pt-4 border-t">
             <Button type="submit" disabled={saving}>
               <Save className="h-4 w-4 mr-2" />
-              {saving ? "Adding..." : "Add Child Office"}
+              {saving ? "Saving..." : "Save Changes"}
             </Button>
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancel

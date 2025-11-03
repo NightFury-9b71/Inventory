@@ -22,7 +22,7 @@ export default function AddChildOfficePage() {
   } = useCreateChildOffice();
 
   return (
-    <div className="p-6">
+    <div className="p-6 max-w-4xl mx-auto">
       <CreateChildHeader onBack={handleBack} />
 
       <CreateChildForm
