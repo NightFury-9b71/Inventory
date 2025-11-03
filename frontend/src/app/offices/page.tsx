@@ -9,6 +9,7 @@ import TableHeaderRow from "@/components/TableHeaderRow";
 import TableHeaderCell from "@/components/TableHeaderCell";
 import TableBodyRows from "@/components/TableBodyRows";
 import { useOffices } from "@/hooks/queries/useOffices";
+import { Button } from "@/components/ui/button";
 
 function OfficeTableContent() {
   const { 
@@ -25,7 +26,6 @@ function OfficeTableContent() {
   } = useOfficeTableContext();
 
   const { data: offices = [] } = useOffices("all");
-  const uniqueTypes = Array.from(new Set(offices.map((office) => office.type))).sort();
 
   return (
     <div className="p-6">
@@ -40,13 +40,30 @@ function OfficeTableContent() {
         <div className="flex gap-2">
           <PageSearch searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
           <PageFilter
-            typeFilter={typeFilter}
-            setTypeFilter={setTypeFilter}
-            statusFilter={statusFilter}
-            setStatusFilter={setStatusFilter}
-            uniqueTypes={uniqueTypes}
-            clearFilters={clearFilters}
+            label="Type"
+            value={typeFilter}
+            options={[
+              { value: "all", label: "All" },
+              ...Array.from(new Set(offices.map(o => o.type))).sort().map(type => ({
+                value: type,
+                label: type
+              }))
+            ]}
+            onChange={setTypeFilter}
           />
+          <PageFilter
+            label="Status"
+            value={statusFilter}
+            options={[
+              { value: "all", label: "All" },
+              { value: "active", label: "Active" },
+              { value: "inactive", label: "Inactive" }
+            ]}
+            onChange={setStatusFilter}
+          />
+          <Button onClick={clearFilters} variant="outline">
+            Clear Filters
+          </Button>
         </div>
       </PageToolbar>
 

@@ -36,13 +36,18 @@ function CategoryTableContent() {
         <div className="flex gap-2">
           <PageSearch searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
           <PageFilter
-            statusFilter={statusFilter}
-            setStatusFilter={setStatusFilter}
-            clearFilters={clearFilters}
-            typeFilter="all"
-            setTypeFilter={() => {}}
-            uniqueTypes={[]}
+            label="Status"
+            value={statusFilter}
+            options={[
+              { value: "all", label: "All" },
+              { value: "active", label: "Active" },
+              { value: "inactive", label: "Inactive" }
+            ]}
+            onChange={setStatusFilter}
           />
+          <Button onClick={clearFilters} variant="outline">
+            Clear Filters
+          </Button>
           <Link href="/categories/new">
             <Button>
               <Plus className="h-4 w-4 mr-2" />

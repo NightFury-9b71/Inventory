@@ -9,7 +9,6 @@ import TableHeaderRow from "@/components/TableHeaderRow";
 import TableHeaderCell from "@/components/TableHeaderCell";
 import ItemTableBodyRows from "./components/ItemTableBodyRows";
 import { useItems } from "@/hooks/queries/useItems";
-import { useCategories } from "@/hooks/queries/useCategories";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import Link from "next/link";
@@ -27,8 +26,7 @@ function ItemTableContent() {
     clearFilters
   } = useItemTableContext();
 
-  const { data: categories = [] } = useCategories();
-  const uniqueCategories = Array.from(new Set(categories.map((cat) => cat.name))).sort();
+  const { data: items = [] } = useItems();
 
   const searchParams = useSearchParams();
   const filter = searchParams.get('filter');
@@ -46,13 +44,30 @@ function ItemTableContent() {
         <div className="flex gap-2">
           <PageSearch searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
           <PageFilter
-            typeFilter={categoryFilter}
-            setTypeFilter={setCategoryFilter}
-            statusFilter={statusFilter}
-            setStatusFilter={setStatusFilter}
-            uniqueTypes={uniqueCategories}
-            clearFilters={clearFilters}
+            label="Category"
+            value={categoryFilter}
+            options={[
+              { value: "all", label: "All" },
+              ...Array.from(new Set(items.map(i => i.categoryName))).sort().map(cat => ({
+                value: cat,
+                label: cat
+              }))
+            ]}
+            onChange={setCategoryFilter}
           />
+          <PageFilter
+            label="Status"
+            value={statusFilter}
+            options={[
+              { value: "all", label: "All" },
+              { value: "active", label: "Active" },
+              { value: "inactive", label: "Inactive" }
+            ]}
+            onChange={setStatusFilter}
+          />
+          <Button onClick={clearFilters} variant="outline">
+            Clear Filters
+          </Button>
           <Link href="/items/new">
             <Button>
               <Plus className="h-4 w-4 mr-2" />
