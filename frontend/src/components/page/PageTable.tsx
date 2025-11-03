@@ -1,54 +1,139 @@
 "use client";
 
-import React, { ReactNode } from "react";
+import React from "react";
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
+import { ChevronRight, ChevronDown } from "lucide-react";
+import { Office } from "@/types/office";
 
-interface PageTableProps {
-  children: ReactNode;
-  filteredData?: any[];
+interface Column<T> {
+  key: keyof T | string;
+  header: string;
+  render?: (item: T) => React.ReactNode;
+}
+
+interface PageTableProps<T> {
+  data: T[];
+  columns: Column<T>[];
   isLoading?: boolean;
-  expandedItems?: Set<number>;
-  toggleExpand?: (id: number) => void;
+  renderRow?: (item: T, index: number) => React.ReactNode;
+  // For hierarchical office rendering
+  expandedOffices?: Set<number>;
+  onToggleExpand?: (officeId: number) => void;
 }
 
 /**
- * PageTable - Generic table wrapper
- * Injects data into table body rows
+ * PageTable - Simple table that takes data and displays it
+ * No complex state management, no prop drilling, just data in -> table out
+ * 
+ * For simple tables: Pass columns
+ * For custom rendering (hierarchical, expandable, etc): Pass renderRow function
+ * For hierarchical offices: Pass expandedOffices and onToggleExpand
  */
-export default function PageTable({ 
-  children, 
-  filteredData = [], 
+export default function PageTable<T extends Record<string, any>>({ 
+  data, 
+  columns,
   isLoading = false,
-  expandedItems,
-  toggleExpand
-}: PageTableProps) {
-  // Clone children and inject props into GenericTableBodyRows or TableBodyRows
-  const enhancedChildren = React.Children.map(children, (child) => {
-    if (React.isValidElement(child)) {
-      const childProps = child.props as any;
-      return React.cloneElement(child as React.ReactElement<any>, {
-        ...childProps,
-        children: React.Children.map(childProps.children, (grandChild) => {
-          if (React.isValidElement(grandChild) && grandChild.type && 
-              typeof grandChild.type !== 'string') {
-            const componentName = (grandChild.type as any).name;
-            if (componentName === 'TableBodyRows' || componentName === 'GenericTableBodyRows') {
-              return React.cloneElement(grandChild as React.ReactElement<any>, {
-                filteredData,
-                filteredOffices: filteredData, // For backward compatibility with offices
-                isLoading,
-                expandedItems,
-                expandedOffices: expandedItems, // For backward compatibility with offices
-                toggleExpand,
-              });
-            }
-          }
-          return grandChild;
-        }),
-      });
-    }
-    return child;
-  });
+  renderRow,
+  expandedOffices,
+  onToggleExpand
+}: PageTableProps<T>) {
+  if (isLoading) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-gray-500">Loading...</p>
+      </div>
+    );
+  }
 
-  return <>{enhancedChildren}</>;
+  if (data.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-gray-500">No data available</p>
+      </div>
+    );
+  }
+
+  // Hierarchical Office Row Renderer
+  const renderOfficeRow = (office: Office, level: number = 0): React.ReactNode => {
+    const isExpanded = expandedOffices?.has(office.id) || false;
+    const hasChildren = office.subOffices && office.subOffices.length > 0;
+
+    return (
+      <React.Fragment key={office.id}>
+        <TableRow>
+          <TableCell>
+            <div className="flex items-center" style={{ paddingLeft: `${level * 24}px` }}>
+              {hasChildren ? (
+                <button
+                  onClick={() => onToggleExpand?.(office.id)}
+                  className="mr-2 p-1 hover:bg-gray-100 rounded"
+                >
+                  {isExpanded ? (
+                    <ChevronDown className="h-4 w-4" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
+                </button>
+              ) : (
+                <span className="w-6 mr-2" />
+              )}
+              {office.name}
+            </div>
+          </TableCell>
+          <TableCell>{office.nameBn}</TableCell>
+          <TableCell>{office.code}</TableCell>
+          <TableCell>{office.type}</TableCell>
+          <TableCell>
+            <span className={office.isActive ? "text-green-600" : "text-red-600"}>
+              {office.isActive ? "Active" : "Inactive"}
+            </span>
+          </TableCell>
+        </TableRow>
+        {isExpanded && hasChildren && (
+          <>
+            {office.subOffices!.map((subOffice) => renderOfficeRow(subOffice, level + 1))}
+          </>
+        )}
+      </React.Fragment>
+    );
+  };
+
+  // Determine if we're rendering hierarchical offices
+  const isHierarchicalOffice = expandedOffices !== undefined && onToggleExpand !== undefined;
+
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          {columns.map((column, index) => (
+            <TableHead key={index}>{column.header}</TableHead>
+          ))}
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {isHierarchicalOffice ? (
+          // Hierarchical office rendering
+          (data as unknown as Office[]).map((office) => renderOfficeRow(office))
+        ) : renderRow ? (
+          // Custom row rendering (for other complex tables)
+          data.map((item, index) => renderRow(item, index))
+        ) : (
+          // Simple flat table rendering
+          data.map((item, rowIndex) => (
+            <TableRow key={rowIndex}>
+              {columns.map((column, colIndex) => (
+                <TableCell key={colIndex}>
+                  {column.render 
+                    ? column.render(item) 
+                    : item[column.key as keyof T]
+                  }
+                </TableCell>
+              ))}
+            </TableRow>
+          ))
+        )}
+      </TableBody>
+    </Table>
+  );
 }
 

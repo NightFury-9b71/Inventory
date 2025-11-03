@@ -1,27 +1,88 @@
 "use client";
 
 import React from "react";
-import { CategoryTableProvider } from "./context/CategoryTableContext";
-import { useCategoryTableContext } from "./context/CategoryTableContext";
-import { PageToolbar, PageHeader, PageSearch, PageFilter, PageBodyContainer, PageTable } from "@/components/page";
-import CategoryTableBodyRows from "./components/CategoryTableBodyRows";
-import TableComponent from "@/components/TableComponent";
-import TableHeaderRow from "@/components/TableHeaderRow";
-import TableHeaderCell from "@/components/TableHeaderCell";
+import { PageToolbar, PageHeader, PageSearch, PageFilter, PageTable } from "@/components/page";
 import { useCategories } from "@/hooks/queries/useCategories";
+import { usePageTable } from "@/hooks/usePageTable";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import Link from "next/link";
+import { ItemCategory } from "@/types/inventory";
 
-function CategoryTableContent() {
+export default function CategoriesPage() {
+  const { data: categories = [], isLoading, error } = useCategories();
+
   const {
-    filteredCategoryCount,
     searchTerm,
+    filters,
+    filteredData,
+    filterOptions,
     setSearchTerm,
-    statusFilter,
-    setStatusFilter,
+    setFilter,
     clearFilters,
-  } = useCategoryTableContext();
+  } = usePageTable({
+    data: categories,
+    searchKeys: ['name', 'nameBn', 'code'],
+    filters: [{ key: 'status', value: 'all' }]
+  });
+
+  // Define table columns
+  const columns = [
+    {
+      key: "name",
+      header: "Name",
+    },
+    {
+      key: "nameBn",
+      header: "Name (Bengali)",
+    },
+    {
+      key: "code",
+      header: "Code",
+    },
+    {
+      key: "description",
+      header: "Description",
+      render: (category: ItemCategory) => (
+        <span className="max-w-xs truncate">{category.description || "-"}</span>
+      ),
+    },
+    {
+      key: "itemCount",
+      header: "Items",
+      render: (category: ItemCategory) => (
+        <span>{category.itemCount || 0}</span>
+      ),
+    },
+    {
+      key: "isActive",
+      header: "Status",
+      render: (category: ItemCategory) => (
+        <span className={category.isActive ? "text-green-600" : "text-red-600"}>
+          {category.isActive ? "Active" : "Inactive"}
+        </span>
+      ),
+    },
+    {
+      key: "actions",
+      header: "Actions",
+      render: (category: ItemCategory) => (
+        <Link href={`/categories/${category.id}`}>
+          <Button variant="outline" size="sm">View</Button>
+        </Link>
+      ),
+    },
+  ];
+
+  if (error) {
+    return (
+      <div className="p-6">
+        <div className="text-center py-8">
+          <p className="text-red-600 font-semibold">An error occurred while fetching data.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6">
@@ -30,20 +91,16 @@ function CategoryTableContent() {
         <PageHeader
           title="Categories"
           subtitle="Organize your inventory items"
-          totalCount={filteredCategoryCount}
-          countLabel={filteredCategoryCount === 1 ? "Category" : "Categories"}
+          totalCount={filteredData.length}
+          countLabel={filteredData.length === 1 ? "Category" : "Categories"}
         />
         <div className="flex gap-2">
           <PageSearch searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
           <PageFilter
             label="Status"
-            value={statusFilter}
-            options={[
-              { value: "all", label: "All" },
-              { value: "active", label: "Active" },
-              { value: "inactive", label: "Inactive" }
-            ]}
-            onChange={setStatusFilter}
+            value={filters.status}
+            options={filterOptions.status}
+            onChange={(value) => setFilter('status', value)}
           />
           <Button onClick={clearFilters} variant="outline">
             Clear Filters
@@ -57,64 +114,8 @@ function CategoryTableContent() {
         </div>
       </PageToolbar>
 
-      {/* Body: Data fetching + table rendering */}
-      <CategoryBodyContainer>
-        <PageTable>
-          <TableComponent>
-            <TableHeaderRow>
-              <TableHeaderCell>Name</TableHeaderCell>
-              <TableHeaderCell>Name_Bn</TableHeaderCell>
-              <TableHeaderCell>Code</TableHeaderCell>
-              <TableHeaderCell>Description</TableHeaderCell>
-              <TableHeaderCell>Items</TableHeaderCell>
-              <TableHeaderCell>Status</TableHeaderCell>
-              <TableHeaderCell>Actions</TableHeaderCell>
-            </TableHeaderRow>
-            <CategoryTableBodyRows />
-          </TableComponent>
-        </PageTable>
-      </CategoryBodyContainer>
+      {/* Simple Table: Just pass data and columns */}
+      <PageTable data={filteredData} columns={columns} isLoading={isLoading} />
     </div>
-  );
-}
-
-// Custom body container for categories that uses the category-specific context
-function CategoryBodyContainer({ children }: { children: React.ReactNode }) {
-  const { searchTerm, statusFilter, setFilteredCategoryCount } = useCategoryTableContext();
-  const { data: categories = [], isLoading, error } = useCategories();
-
-  const filterFn = (category: any) => {
-    const matchesSearch =
-      searchTerm === "" ||
-      category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      category.nameBn?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      category.code.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const matchesStatus =
-      statusFilter === "all" ||
-      (statusFilter === "active" && category.isActive) ||
-      (statusFilter === "inactive" && !category.isActive);
-
-    return matchesSearch && matchesStatus;
-  };
-
-  return (
-    <PageBodyContainer
-      data={categories}
-      isLoading={isLoading}
-      error={error}
-      filterFn={filterFn}
-      onFilteredCountChange={setFilteredCategoryCount}
-    >
-      {children}
-    </PageBodyContainer>
-  );
-}
-
-export default function CategoriesPage() {
-  return (
-    <CategoryTableProvider>
-      <CategoryTableContent />
-    </CategoryTableProvider>
   );
 }

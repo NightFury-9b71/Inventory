@@ -1,31 +1,52 @@
 "use client";
 
 import React from "react";
-import { OfficeTableProvider } from "./context/OfficeTableContext";
-import { useOfficeTableContext } from "./context/OfficeTableContext";
-import { PageToolbar, PageHeader, PageSearch, PageFilter, PageBodyContainer, PageTable } from "@/components/page";
-import TableComponent from "@/components/TableComponent";
-import TableHeaderRow from "@/components/TableHeaderRow";
-import TableHeaderCell from "@/components/TableHeaderCell";
-import TableBodyRows from "@/components/TableBodyRows";
-import { useOffices } from "@/hooks/queries/useOffices";
+import { PageToolbar, PageHeader, PageSearch, PageFilter, PageTable } from "@/components/page";
 import { Button } from "@/components/ui/button";
+import { useOffices } from "@/hooks/queries/useOffices";
+import { usePageTable } from "@/hooks/usePageTable";
 
-function OfficeTableContent() {
-  const { 
-    filteredOfficeCount, 
-    searchTerm, 
+export default function OfficeTablePage() {
+  const { data: offices = [], isLoading, error } = useOffices("all");
+
+  const {
+    searchTerm,
+    filters,
+    expandedItems,
+    filteredData,
+    filterOptions,
     setSearchTerm,
-    typeFilter,
-    setTypeFilter,
-    statusFilter,
-    setStatusFilter,
+    setFilter,
+    toggleExpand,
     clearFilters,
-    expandedOffices,
-    toggleExpand
-  } = useOfficeTableContext();
+  } = usePageTable({
+    data: offices,
+    searchKeys: ['name', 'nameBn', 'code'],
+    filters: [
+      { key: 'type', value: 'all' },
+      { key: 'status', value: 'all' }
+    ],
+    enableHierarchy: true
+  });
 
-  const { data: offices = [] } = useOffices("all");
+  // Define table columns
+  const columns = [
+    { key: "name", header: "Name" },
+    { key: "nameBn", header: "Name (Bengali)" },
+    { key: "code", header: "Code" },
+    { key: "type", header: "Type" },
+    { key: "isActive", header: "Status" },
+  ];
+
+  if (error) {
+    return (
+      <div className="p-6">
+        <div className="text-center py-8">
+          <p className="text-red-600 font-semibold">An error occurred while fetching data.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6">
@@ -34,32 +55,22 @@ function OfficeTableContent() {
         <PageHeader 
           title="Office Management"
           subtitle="Manage all offices, faculties, and departments"
-          totalCount={filteredOfficeCount}
-          countLabel={filteredOfficeCount === 1 ? 'Office' : 'Offices'}
+          totalCount={filteredData.length}
+          countLabel={filteredData.length === 1 ? 'Office' : 'Offices'}
         />
         <div className="flex gap-2">
           <PageSearch searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
           <PageFilter
             label="Type"
-            value={typeFilter}
-            options={[
-              { value: "all", label: "All" },
-              ...Array.from(new Set(offices.map(o => o.type))).sort().map(type => ({
-                value: type,
-                label: type
-              }))
-            ]}
-            onChange={setTypeFilter}
+            value={filters.type}
+            options={filterOptions.type}
+            onChange={(value) => setFilter('type', value)}
           />
           <PageFilter
             label="Status"
-            value={statusFilter}
-            options={[
-              { value: "all", label: "All" },
-              { value: "active", label: "Active" },
-              { value: "inactive", label: "Inactive" }
-            ]}
-            onChange={setStatusFilter}
+            value={filters.status}
+            options={filterOptions.status}
+            onChange={(value) => setFilter('status', value)}
           />
           <Button onClick={clearFilters} variant="outline">
             Clear Filters
@@ -67,63 +78,14 @@ function OfficeTableContent() {
         </div>
       </PageToolbar>
 
-      {/* Body: Data fetching + table rendering */}
-      <OfficeBodyContainer>
-        <PageTable expandedItems={expandedOffices} toggleExpand={toggleExpand}>
-          <TableComponent>
-            <TableHeaderRow>
-              <TableHeaderCell>Name</TableHeaderCell>
-              <TableHeaderCell>Name_Bn</TableHeaderCell>
-              <TableHeaderCell>Code</TableHeaderCell>
-              <TableHeaderCell>Type</TableHeaderCell>
-              <TableHeaderCell>Status</TableHeaderCell>
-            </TableHeaderRow>
-            <TableBodyRows />
-          </TableComponent>
-        </PageTable>
-      </OfficeBodyContainer>
+      {/* Hierarchical Table with office rendering built-in */}
+      <PageTable 
+        data={filteredData} 
+        columns={columns} 
+        isLoading={isLoading}
+        expandedOffices={expandedItems}
+        onToggleExpand={toggleExpand}
+      />
     </div>
-  );
-}
-
-// Custom body container for offices that uses the office-specific context
-function OfficeBodyContainer({ children }: { children: React.ReactNode }) {
-  const { searchTerm, typeFilter, statusFilter, setFilteredOfficeCount } = useOfficeTableContext();
-  const { data: offices = [], isLoading, error } = useOffices("all");
-
-  const filterFn = (office: any) => {
-    const matchesSearch =
-      searchTerm === "" ||
-      office.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      office.nameBn.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      office.code.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const matchesType = typeFilter === "all" || office.type === typeFilter;
-    const matchesStatus =
-      statusFilter === "all" ||
-      (statusFilter === "active" && office.isActive) ||
-      (statusFilter === "inactive" && !office.isActive);
-
-    return matchesSearch && matchesType && matchesStatus;
-  };
-
-  return (
-    <PageBodyContainer
-      data={offices}
-      isLoading={isLoading}
-      error={error}
-      filterFn={filterFn}
-      onFilteredCountChange={setFilteredOfficeCount}
-    >
-      {children}
-    </PageBodyContainer>
-  );
-}
-
-export default function OfficeTablePage() {
-  return (
-    <OfficeTableProvider>
-      <OfficeTableContent />
-    </OfficeTableProvider>
   );
 }
