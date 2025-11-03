@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useEditOffice } from "./hooks/useEditOffice";
+import { useOfficeCrud } from "../hooks/useOfficeCrud";
 import EditOfficeHeader from "./components/EditOfficeHeader";
 import EditOfficeForm from "./components/EditOfficeForm";
 import LoadingState from "../components/LoadingState";
@@ -19,10 +19,10 @@ export default function EditOfficePage() {
     error,
     saving,
     handleInputChange,
-    handleSubmit,
+    handleUpdateSubmit,
     handleBack,
     handleCancel,
-  } = useEditOffice();
+  } = useOfficeCrud();
 
   // Loading State
   if (loading) {
@@ -44,7 +44,7 @@ export default function EditOfficePage() {
         saving={saving}
         error={error}
         onInputChange={handleInputChange}
-        onSubmit={handleSubmit}
+        onSubmit={handleUpdateSubmit}
         onCancel={handleCancel}
       />
     </div>

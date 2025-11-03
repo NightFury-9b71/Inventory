@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useOfficeDetail } from "./hooks/useOfficeDetail";
+import { useOfficeCrud } from "./hooks/useOfficeCrud";
 import HeaderActions from "./components/HeaderActions";
 import OfficeInfoCard from "./components/OfficeInfoCard";
 import AdditionalDetailsCard from "./components/AdditionalDetailsCard";
@@ -10,7 +10,17 @@ import LoadingState from "./components/LoadingState";
 import ErrorState from "./components/ErrorState";
 
 export default function OfficeDetailPage() {
-  const { office, loading, error, handlers } = useOfficeDetail();
+  const {
+    office,
+    loading,
+    error,
+    deleting,
+    handleBack,
+    handleEdit,
+    handleAddChild,
+    handleDelete,
+    handleNavigateToChild,
+  } = useOfficeCrud();
 
   // Loading State
   if (loading) {
@@ -19,16 +29,19 @@ export default function OfficeDetailPage() {
 
   // Error State
   if (error || !office) {
-    return <ErrorState message={error || undefined} onBack={handlers.handleBack} />;
+    return <ErrorState message={error || undefined} onBack={handleBack} />;
   }
 
   // Main Component Stack
   return (
     <div className="p-6">
       <HeaderActions
-        onBack={handlers.handleBack}
-        onEdit={handlers.handleEdit}
-        onAddChild={handlers.handleAddChild}
+        onBack={handleBack}
+        onEdit={handleEdit}
+        onAddChild={handleAddChild}
+        onDelete={handleDelete}
+        officeName={office.name}
+        isDeleting={deleting}
       />
 
       <div className="grid gap-6 md:grid-cols-2">
@@ -38,7 +51,7 @@ export default function OfficeDetailPage() {
 
       <ChildOfficesCard
         subOffices={office.subOffices}
-        onNavigateToChild={handlers.handleNavigateToChild}
+        onNavigateToChild={handleNavigateToChild}
       />
     </div>
   );

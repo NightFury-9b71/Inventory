@@ -1,12 +1,15 @@
 "use client";
 
 import React from "react";
+import { useRouter } from "next/navigation";
 import { PageToolbar, PageHeader, PageSearch, PageFilter, PageTable } from "@/components/page";
 import { Button } from "@/components/ui/button";
 import { useOffices } from "@/hooks/queries/useOffices";
 import { usePageTable } from "@/hooks/usePageTable";
+import { Office } from "@/types/office";
 
 export default function OfficeTablePage() {
+  const router = useRouter();
   const { data: offices = [], isLoading, error } = useOffices("all");
 
   const {
@@ -37,6 +40,10 @@ export default function OfficeTablePage() {
     { key: "type", header: "Type" },
     { key: "isActive", header: "Status" },
   ];
+
+  const handleRowClick = (office: Office) => {
+    router.push(`/offices/${office.id}`);
+  };
 
   if (error) {
     return (
@@ -85,6 +92,7 @@ export default function OfficeTablePage() {
         isLoading={isLoading}
         expandedOffices={expandedItems}
         onToggleExpand={toggleExpand}
+        onRowClick={handleRowClick}
       />
     </div>
   );

@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
-import { useCreateChildOffice } from "./hooks/useCreateChildOffice";
-import CreateChildHeader from "./components/CreateChildHeader";
-import CreateChildForm from "./components/CreateChildForm";
+import { useOfficeCrud } from "../hooks/useOfficeCrud";
+import AddChildHeader from "./components/AddChildHeader";
+import AddChildForm from "./components/AddChildForm";
 import { useRequirePermission } from "@/hooks/useAuthorization";
 import { Permission } from "@/types/auth";
 
@@ -16,21 +16,21 @@ export default function AddChildOfficePage() {
     saving,
     error,
     handleInputChange,
-    handleSubmit,
+    handleCreateSubmit,
     handleBack,
     handleCancel,
-  } = useCreateChildOffice();
+  } = useOfficeCrud({ createMode: true, skipFetch: true });
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <CreateChildHeader onBack={handleBack} />
+      <AddChildHeader onBack={handleBack} />
 
-      <CreateChildForm
+      <AddChildForm
         office={office}
         saving={saving}
         error={error}
         onInputChange={handleInputChange}
-        onSubmit={handleSubmit}
+        onSubmit={handleCreateSubmit}
         onCancel={handleCancel}
       />
     </div>

@@ -35,7 +35,7 @@ type Props = {
   onCancel: () => void;
 };
 
-export default function CreateChildForm({
+export default function AddChildForm({
   office,
   saving,
   error,

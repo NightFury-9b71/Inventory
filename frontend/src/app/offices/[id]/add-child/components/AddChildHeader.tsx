@@ -8,7 +8,7 @@ type Props = {
   onBack: () => void;
 };
 
-export default function CreateChildHeader({ onBack }: Props) {
+export default function AddChildHeader({ onBack }: Props) {
   return (
     <div className="mb-6">
       <Button variant="outline" onClick={onBack} className="mb-4">

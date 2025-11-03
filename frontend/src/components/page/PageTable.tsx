@@ -19,6 +19,7 @@ interface PageTableProps<T> {
   // For hierarchical office rendering
   expandedOffices?: Set<number>;
   onToggleExpand?: (officeId: number) => void;
+  onRowClick?: (item: T) => void;
 }
 
 /**
@@ -35,7 +36,8 @@ export default function PageTable<T extends Record<string, any>>({
   isLoading = false,
   renderRow,
   expandedOffices,
-  onToggleExpand
+  onToggleExpand,
+  onRowClick
 }: PageTableProps<T>) {
   if (isLoading) {
     return (
@@ -60,12 +62,24 @@ export default function PageTable<T extends Record<string, any>>({
 
     return (
       <React.Fragment key={office.id}>
-        <TableRow>
+        <TableRow 
+          className="cursor-pointer hover:bg-gray-50"
+          onClick={(e) => {
+            // Don't navigate if clicking on the expand/collapse button
+            const target = e.target as HTMLElement;
+            if (!target.closest('button')) {
+              onRowClick?.(office as any);
+            }
+          }}
+        >
           <TableCell>
             <div className="flex items-center" style={{ paddingLeft: `${level * 24}px` }}>
               {hasChildren ? (
                 <button
-                  onClick={() => onToggleExpand?.(office.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggleExpand?.(office.id);
+                  }}
                   className="mr-2 p-1 hover:bg-gray-100 rounded"
                 >
                   {isExpanded ? (
@@ -120,7 +134,11 @@ export default function PageTable<T extends Record<string, any>>({
         ) : (
           // Simple flat table rendering
           data.map((item, rowIndex) => (
-            <TableRow key={rowIndex}>
+            <TableRow 
+              key={rowIndex}
+              className={onRowClick ? "cursor-pointer hover:bg-gray-50" : ""}
+              onClick={() => onRowClick?.(item)}
+            >
               {columns.map((column, colIndex) => (
                 <TableCell key={colIndex}>
                   {column.render 
