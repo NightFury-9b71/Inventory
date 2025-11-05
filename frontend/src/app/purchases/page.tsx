@@ -2,8 +2,8 @@
 
 import React from 'react';
 import { usePurchases } from '@/hooks/queries/usePurchases';
-import { PageTableProvider, usePageTableContext } from '@/contexts/PageTableContext';
-import { PageToolbar, PageHeader, PageSearch, PageBodyContainer, PageTable } from '@/components/page';
+import { PageTableProvider, useTableDataContext } from '@/contexts/PageTableContext';
+import {  PageHeader, PageSearch, PageBodyContainer, PageTable } from '@/components/page';
 import TableComponent from '@/components/TableComponent';
 import TableHeaderRow from '@/components/TableHeaderRow';
 import TableHeaderCell from '@/components/TableHeaderCell';
@@ -18,7 +18,7 @@ function PurchasesPageContent() {
     setSearchTerm, 
     filteredCount,
     setFilteredCount 
-  } = usePageTableContext();
+  } = useTableDataContext();
 
   const { data: purchases = [], isLoading, error } = usePurchases();
 

@@ -98,7 +98,6 @@ export function useOfficeCrud(options: UseOfficeCrudOptions = {}) {
       
       router.push(`/offices/${officeId}`);
     } catch (err) {
-      console.error("Failed to update office", err);
       toast.error("Failed to update office", {
         description: "Please check your input and try again.",
       });
@@ -121,7 +120,6 @@ export function useOfficeCrud(options: UseOfficeCrudOptions = {}) {
       
       router.push("/offices");
     } catch (err: any) {
-      console.error("Failed to delete office", err);
       toast.error("Failed to delete office", {
         description: err?.response?.data?.message || "Please try again or contact support.",
       });

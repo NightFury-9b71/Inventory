@@ -1,14 +1,15 @@
 "use client";
 
 import React from "react";
-import { PageToolbar, PageHeader, PageSearch, PageFilter, PageTable } from "@/components/page";
+import {  PageHeader, PageSearch, PageFilter, PageTable } from "@/components/page";
 import { useItems } from "@/hooks/queries/useItems";
-import { usePageTable } from "@/hooks/usePageTable";
+import { useTableData } from "@/hooks/useTableData";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Item } from "@/types/inventory";
+import { Eye, Edit, Trash2 } from "lucide-react";
 
 export default function ItemsPage() {
   const { data: items = [], isLoading, error } = useItems();
@@ -23,7 +24,7 @@ export default function ItemsPage() {
     setSearchTerm,
     setFilter,
     clearFilters,
-  } = usePageTable({
+  } = useTableData({
     data: items,
     searchKeys: ['name', 'code'],
     filters: [
@@ -107,9 +108,21 @@ export default function ItemsPage() {
       key: "actions",
       header: "Actions",
       render: (item: Item) => (
-        <Link href={`/items/${item.id}`}>
-          <Button variant="outline" size="sm">View</Button>
-        </Link>
+        <div className="flex gap-2">
+          <Link href={`/items/${item.id}`}>
+            <Button variant="ghost" size="sm">
+              <Eye className="h-4 w-4" />
+            </Button>
+          </Link>
+          <Link href={`/items/${item.id}/edit`}>
+            <Button variant="ghost" size="sm">
+              <Edit className="h-4 w-4" />
+            </Button>
+          </Link>
+          <Button variant="ghost" size="sm">
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
       ),
     },
   ];

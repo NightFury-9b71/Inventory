@@ -1,11 +1,11 @@
 "use client";
 
 import React from "react";
-import { useOfficeCrud } from "../hooks/useOfficeCrud";
+import { useOfficeCrud } from "../../hooks/useOfficeCrud";
 import EditOfficeHeader from "./components/EditOfficeHeader";
 import EditOfficeForm from "./components/EditOfficeForm";
-import LoadingState from "../components/LoadingState";
-import ErrorState from "../components/ErrorState";
+import LoadingState from "../../components/LoadingState";
+import ErrorState from "../../components/ErrorState";
 import { useRequirePermission } from "@/hooks/useAuthorization";
 import { Permission } from "@/types/auth";
 

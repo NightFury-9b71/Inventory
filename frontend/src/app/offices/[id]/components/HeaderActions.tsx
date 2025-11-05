@@ -6,29 +6,22 @@ import { ArrowLeft, Edit, Plus, Trash2 } from "lucide-react";
 import { PermissionGuard } from "@/components/auth/Guards";
 import { Permission } from "@/types/auth";
 import { DeleteConfirmationDialog } from "@/components/ui/delete-confirmation-dialog";
+import { useOfficeCrud } from "../hooks/useOfficeCrud";
 
 type Props = {
-  onBack?: () => void;
-  onEdit?: () => void;
-  onAddChild?: () => void;
-  onDelete?: () => void;
   officeName?: string;
-  isDeleting?: boolean;
 };
 
 export default function HeaderActions({ 
-  onBack, 
-  onEdit, 
-  onAddChild, 
-  onDelete,
   officeName = "",
-  isDeleting = false,
 }: Props) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const { handleBack, handleEdit, handleAddChild, handleDelete, deleting } = useOfficeCrud();
 
   const handleDeleteConfirm = () => {
-    if (onDelete) {
-      onDelete();
+    if (handleDelete) {
+      handleDelete();
+      setShowDeleteDialog(false);
     }
   };
 
@@ -36,14 +29,14 @@ export default function HeaderActions({
     <>
       <div className="mb-6">
         <div className="flex items-center justify-between">
-          <Button variant="outline" onClick={onBack} className="mb-4">
+          <Button variant="outline" onClick={handleBack} className="mb-4">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Offices
           </Button>
           <div className="flex gap-2">
             {/* Only show Edit button if user has permission */}
             <PermissionGuard permission={Permission.EDIT_OFFICE}>
-              <Button variant="outline" onClick={onEdit}>
+              <Button variant="outline" onClick={handleEdit}>
                 <Edit className="h-4 w-4 mr-2" />
                 Edit Office
               </Button>
@@ -51,7 +44,7 @@ export default function HeaderActions({
             
             {/* Only show Add Child button if user has permission */}
             <PermissionGuard permission={Permission.CREATE_OFFICE}>
-              <Button onClick={onAddChild}>
+              <Button onClick={handleAddChild}>
                 <Plus className="h-4 w-4 mr-2" />
                 Add Child Office
               </Button>
@@ -62,10 +55,10 @@ export default function HeaderActions({
               <Button 
                 variant="destructive" 
                 onClick={() => setShowDeleteDialog(true)}
-                disabled={isDeleting}
+                disabled={deleting}
               >
                 <Trash2 className="h-4 w-4 mr-2" />
-                {isDeleting ? "Deleting..." : "Delete Office"}
+                {deleting ? "Deleting..." : "Delete Office"}
               </Button>
             </PermissionGuard>
           </div>
@@ -80,7 +73,7 @@ export default function HeaderActions({
         description={`You are about to delete "${officeName}". This action cannot be undone.`}
         confirmationText={officeName}
         warningMessage="This will permanently delete the office and all its associated data."
-        isDeleting={isDeleting}
+        isDeleting={deleting}
       />
     </>
   );

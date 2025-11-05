@@ -1,16 +1,38 @@
 "use client";
 
 import React from "react";
-import { useRouter } from "next/navigation";
-import { PageToolbar, PageHeader, PageSearch, PageFilter, PageTable } from "@/components/page";
+import { PageHeader, PageTitle, PageSubtitle, PageToolbar, PageBody, PageFooter, PageSearch, PageFilter, PageTable } from "@/components/page";
 import { Button } from "@/components/ui/button";
-import { useOffices } from "@/hooks/queries/useOffices";
-import { usePageTable } from "@/hooks/usePageTable";
+import { useTableData } from "@/hooks/useTableData";
 import { Office } from "@/types/office";
+import TableActions from "@/components/TableActions";
+import { useOfficeCrud } from "./hooks/useOfficeCrud";
+import { DeleteConfirmationDialog } from "@/components/ui/delete-confirmation-dialog";
+
+const OfficeActions: React.FC<{ office: Office }> = ({ office }) => {
+  const { handleView, handleEdit, handleDelete } = useOfficeCrud();
+  
+  return (
+    <TableActions
+      item={office}
+      itemName={office.name}
+      onView={handleView}
+      onEdit={handleEdit}
+      onDelete={() => handleDelete(office)}
+      showView={true}
+      showEdit={true}
+      showDelete={true}
+    />
+  );
+};
 
 export default function OfficeTablePage() {
-  const router = useRouter();
-  const { data: offices = [], isLoading, error } = useOffices("all");
+  const {
+    offices,
+    isLoading,
+    error,
+    deleteDialogState,
+  } = useOfficeCrud();
 
   const {
     searchTerm,
@@ -22,14 +44,13 @@ export default function OfficeTablePage() {
     setFilter,
     toggleExpand,
     clearFilters,
-  } = usePageTable({
+  } = useTableData({
     data: offices,
     searchKeys: ['name', 'nameBn', 'code'],
     filters: [
       { key: 'type', value: 'all' },
       { key: 'status', value: 'all' }
     ],
-    enableHierarchy: true
   });
 
   // Define table columns
@@ -39,11 +60,8 @@ export default function OfficeTablePage() {
     { key: "code", header: "Code" },
     { key: "type", header: "Type" },
     { key: "isActive", header: "Status" },
+    { key: "actions", header: "Actions", render: (office: Office) => <OfficeActions office={office} /> },
   ];
-
-  const handleRowClick = (office: Office) => {
-    router.push(`/offices/${office.id}`);
-  };
 
   if (error) {
     return (
@@ -57,15 +75,11 @@ export default function OfficeTablePage() {
 
   return (
     <div className="p-6">
-      {/* Toolbar: Header + Search + Filters */}
-      <PageToolbar>
-        <PageHeader 
-          title="Office Management"
-          subtitle="Manage all offices, faculties, and departments"
-          totalCount={filteredData.length}
-          countLabel={filteredData.length === 1 ? 'Office' : 'Offices'}
-        />
-        <div className="flex gap-2">
+      {/* Header with integrated toolbar */}
+      <PageHeader>
+        <PageTitle title="Office Management" totalCount={filteredData.length} countLabel={filteredData.length === 1 ? 'Office' : 'Offices'} />
+        <PageSubtitle subtitle="Manage all offices, faculties, and departments" />
+        <PageToolbar>
           <PageSearch searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
           <PageFilter
             label="Type"
@@ -82,18 +96,34 @@ export default function OfficeTablePage() {
           <Button onClick={clearFilters} variant="outline">
             Clear Filters
           </Button>
-        </div>
-      </PageToolbar>
+        </PageToolbar>
+      </PageHeader>
 
-      {/* Hierarchical Table with office rendering built-in */}
-      <PageTable 
-        data={filteredData} 
-        columns={columns} 
-        isLoading={isLoading}
-        expandedOffices={expandedItems}
-        onToggleExpand={toggleExpand}
-        onRowClick={handleRowClick}
-      />
+      <PageBody>
+        <PageTable 
+          data={filteredData} 
+          columns={columns} 
+          isLoading={isLoading}
+          expandedOffices={expandedItems}
+          onToggleExpand={toggleExpand}
+        />
+      </PageBody>
+
+      <PageFooter>
+        {/* Pagination will go here */}
+      </PageFooter>
+
+      {deleteDialogState.item && (
+        <DeleteConfirmationDialog
+          open={deleteDialogState.open}
+          onOpenChange={deleteDialogState.onOpenChange}
+          onConfirm={deleteDialogState.onConfirm}
+          title={`Delete ${deleteDialogState.item.name}`}
+          description={`Are you sure you want to delete this office? This action cannot be undone.`}
+          confirmationText="delete"
+          isDeleting={deleteDialogState.isDeleting}
+        />
+      )}
     </div>
   );
 }

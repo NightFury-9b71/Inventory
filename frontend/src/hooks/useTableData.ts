@@ -6,15 +6,13 @@ export interface FilterConfig {
   options?: Array<{ value: string; label: string }>;
 }
 
-export interface UsePageTableConfig<T> {
+export interface UseTableDataConfig<T> {
   data: T[];
   searchKeys?: (keyof T)[];
   filters?: FilterConfig[];
-  enableHierarchy?: boolean;
-  customFilterFn?: (item: T, filters: Record<string, string>, searchTerm: string) => boolean;
 }
 
-export interface UsePageTableReturn<T> {
+export interface UseTableDataReturn<T> {
   // State
   searchTerm: string;
   filters: Record<string, string>;
@@ -34,43 +32,21 @@ export interface UsePageTableReturn<T> {
 }
 
 /**
- * Generic hook for page table management
- * Handles search, filtering, hierarchical expansion, and common table operations
- * 
- * @example
- * // Basic usage with search and status filter
- * const tableState = usePageTable({
- *   data: categories,
- *   searchKeys: ['name', 'nameBn', 'code'],
- *   filters: [{ key: 'status', value: 'all' }]
- * });
- * 
- * @example
- * // With hierarchical support (for offices)
- * const tableState = usePageTable({
- *   data: offices,
- *   searchKeys: ['name', 'nameBn', 'code'],
- *   filters: [
- *     { key: 'type', value: 'all' },
- *     { key: 'status', value: 'all' }
- *   ],
- *   enableHierarchy: true
- * });
+ * Simplified hook for table data management
+ * Handles search and filtering
  */
-export function usePageTable<T extends Record<string, any>>({
+export function useTableData<T extends Record<string, any>>({
   data,
   searchKeys = [],
   filters: initialFilters = [],
-  enableHierarchy = false,
-  customFilterFn
-}: UsePageTableConfig<T>): UsePageTableReturn<T> {
+}: UseTableDataConfig<T>): UseTableDataReturn<T> {
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState<Record<string, string>>(
     initialFilters.reduce((acc, f) => ({ ...acc, [f.key]: f.value }), {})
   );
   const [expandedItems, setExpandedItems] = useState<Set<number>>(new Set());
 
-  // Toggle expand/collapse for hierarchical items
+  // Toggle expand/collapse
   const toggleExpand = (id: number) => {
     setExpandedItems((prev) => {
       const newSet = new Set(prev);
@@ -88,8 +64,8 @@ export function usePageTable<T extends Record<string, any>>({
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
-  // Default filter function
-  const defaultFilterFn = (item: T): boolean => {
+  // Filter function
+  const filterFn = (item: T): boolean => {
     // Search filter
     const matchesSearch =
       searchTerm === "" ||
@@ -104,7 +80,7 @@ export function usePageTable<T extends Record<string, any>>({
     for (const [filterKey, filterValue] of Object.entries(filters)) {
       if (filterValue === "all") continue;
 
-      // Handle status filter (common pattern)
+      // Handle status filter
       if (filterKey === "status") {
         const isActive = item.isActive;
         if (filterValue === "active" && !isActive) return false;
@@ -121,14 +97,10 @@ export function usePageTable<T extends Record<string, any>>({
 
   // Filter data
   const filteredData = useMemo(() => {
-    const filterFn = customFilterFn 
-      ? (item: T) => customFilterFn(item, filters, searchTerm)
-      : defaultFilterFn;
-
     return data.filter(filterFn);
-  }, [data, searchTerm, filters, searchKeys, customFilterFn]);
+  }, [data, searchTerm, filters, searchKeys]);
 
-  // Generate filter options dynamically
+  // Generate filter options
   const filterOptions = useMemo(() => {
     const options: Record<string, Array<{ value: string; label: string }>> = {};
 
@@ -136,14 +108,12 @@ export function usePageTable<T extends Record<string, any>>({
       if (filter.options) {
         options[filter.key] = filter.options;
       } else if (filter.key === "status") {
-        // Default status options
         options[filter.key] = [
           { value: "all", label: "All" },
           { value: "active", label: "Active" },
           { value: "inactive", label: "Inactive" }
         ];
       } else {
-        // Auto-generate options from data
         const uniqueValues = Array.from(new Set(data.map(item => item[filter.key])))
           .filter(Boolean)
           .sort();

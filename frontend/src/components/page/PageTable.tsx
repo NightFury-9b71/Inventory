@@ -63,14 +63,7 @@ export default function PageTable<T extends Record<string, any>>({
     return (
       <React.Fragment key={office.id}>
         <TableRow 
-          className="cursor-pointer hover:bg-gray-50"
-          onClick={(e) => {
-            // Don't navigate if clicking on the expand/collapse button
-            const target = e.target as HTMLElement;
-            if (!target.closest('button')) {
-              onRowClick?.(office as any);
-            }
-          }}
+          className="hover:bg-gray-50"
         >
           <TableCell>
             <div className="flex items-center" style={{ paddingLeft: `${level * 24}px` }}>
@@ -102,6 +95,9 @@ export default function PageTable<T extends Record<string, any>>({
               {office.isActive ? "Active" : "Inactive"}
             </span>
           </TableCell>
+          <TableCell>
+            {columns.find(col => col.key === 'actions')?.render?.(office as any)}
+          </TableCell>
         </TableRow>
         {isExpanded && hasChildren && (
           <>
@@ -119,9 +115,7 @@ export default function PageTable<T extends Record<string, any>>({
     <Table>
       <TableHeader>
         <TableRow>
-          {columns.map((column, index) => (
-            <TableHead key={index}>{column.header}</TableHead>
-          ))}
+          {columns.map((column, index) => ( <TableHead key={index}>{column.header}</TableHead> ))}
         </TableRow>
       </TableHeader>
       <TableBody>

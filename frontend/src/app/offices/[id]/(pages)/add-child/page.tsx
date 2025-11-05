@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useOfficeCrud } from "../hooks/useOfficeCrud";
+import { useOfficeCrud } from "../../hooks/useOfficeCrud";
 import AddChildHeader from "./components/AddChildHeader";
 import AddChildForm from "./components/AddChildForm";
 import { useRequirePermission } from "@/hooks/useAuthorization";

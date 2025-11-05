@@ -70,10 +70,10 @@ export function PageTableProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function usePageTableContext() {
+export function useTableDataContext() {
   const context = useContext(PageTableContext);
   if (!context) {
-    throw new Error("usePageTableContext must be used within PageTableProvider");
+    throw new Error("useTableDataContext must be used within PageTableProvider");
   }
   return context;
 }

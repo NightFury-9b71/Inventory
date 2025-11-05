@@ -36,12 +36,7 @@ export default function OfficeDetailPage() {
   return (
     <div className="p-6">
       <HeaderActions
-        onBack={handleBack}
-        onEdit={handleEdit}
-        onAddChild={handleAddChild}
-        onDelete={handleDelete}
         officeName={office.name}
-        isDeleting={deleting}
       />
 
       <div className="grid gap-6 md:grid-cols-2">

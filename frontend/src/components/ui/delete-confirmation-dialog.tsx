@@ -67,15 +67,15 @@ export function DeleteConfirmationDialog({
             )}
             <div className="space-y-2 pt-2">
               <Label htmlFor="confirm-input" className="text-foreground">
-                Please type <code className="bg-muted px-1.5 py-0.5 rounded font-mono text-sm font-semibold">{confirmationText}</code> to confirm:
+                Type <span className="font-semibold">{confirmationText}</span> to confirm:
               </Label>
               <Input
                 id="confirm-input"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                placeholder={confirmationText}
-                className="font-mono"
+                placeholder={`Type "${confirmationText}" to confirm`}
                 disabled={isDeleting}
+                autoComplete="off"
               />
             </div>
           </AlertDialogDescription>

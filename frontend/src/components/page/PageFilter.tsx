@@ -1,13 +1,13 @@
 "use client";
 
 import React from "react";
-import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface PageFilterProps {
   label: string;
@@ -17,7 +17,7 @@ interface PageFilterProps {
 }
 
 /**
- * PageFilter - Simple dropdown filter component
+ * PageFilter - Simple select filter component
  * Can be composed with other filters for complex filtering needs
  */
 export default function PageFilter({
@@ -26,22 +26,18 @@ export default function PageFilter({
   options,
   onChange,
 }: PageFilterProps) {
-  const displayValue = options.find((opt) => opt.value === value)?.label || value;
-
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline">
-          {label}: {displayValue}
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent>
+    <Select value={value} onValueChange={onChange}>
+      <SelectTrigger className="w-fit">
+        {label}: <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
         {options.map((option) => (
-          <DropdownMenuItem key={option.value} onClick={() => onChange(option.value)}>
+          <SelectItem key={option.value} value={option.value}>
             {option.label}
-          </DropdownMenuItem>
+          </SelectItem>
         ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+      </SelectContent>
+    </Select>
   );
 }
