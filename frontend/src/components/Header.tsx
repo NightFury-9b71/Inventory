@@ -5,7 +5,7 @@ import { Bell, Search, User, ChevronDown, LogOut, Settings as SettingsIcon } fro
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { useAuth } from '@/auth-context';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function Header() {
   const { user, logout } = useAuth();
@@ -31,14 +31,6 @@ export default function Header() {
             className="pl-10 w-64"
           />
         </div>
-
-        {/* Notifications */}
-        <Button variant="ghost" size="sm" className="relative">
-          <Bell className="h-5 w-5" />
-          <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
-            3
-          </span>
-        </Button>
 
         {/* User Menu */}
         <DropdownMenu>

@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Save, AlertCircle } from "lucide-react";
+import Can from "@/components/auth/Can";
 
 type Props = {
   office: Office;
@@ -149,10 +150,12 @@ export default function EditOfficeForm({
 
           {/* Form Actions */}
           <div className="flex gap-2 pt-4 border-t">
-            <Button type="submit" disabled={saving}>
-              <Save className="h-4 w-4 mr-2" />
-              {saving ? "Saving..." : "Save Changes"}
-            </Button>
+            <Can page="/offices" action="edit">
+              <Button type="submit" disabled={saving}>
+                <Save className="h-4 w-4 mr-2" />
+                {saving ? "Saving..." : "Save Changes"}
+              </Button>
+            </Can>
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancel
             </Button>

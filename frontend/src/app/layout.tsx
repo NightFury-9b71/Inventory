@@ -2,11 +2,11 @@
 
 import { Inter } from "next/font/google";
 import "@/globals.css";
-import { AuthProvider } from "@/auth-context";
 import Providers from "@/components/Providers";
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { AuthProvider } from "@/contexts/AuthContext";
 import { usePathname } from "next/navigation";
 import { Toaster } from "sonner";
 

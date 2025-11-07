@@ -19,25 +19,34 @@ export default function OfficeInfoCard({ office }: Props) {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div>
-          <label className="text-sm font-medium text-gray-500">Name</label>
-          <p className="text-lg font-semibold">{office.name}</p>
+        {/* Name and Name (Bengali) side by side */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="text-sm font-medium text-gray-500">Name</label>
+            <p className="text-lg font-semibold">{office.name}</p>
+          </div>
+          <div>
+            <label className="text-sm font-medium text-gray-500">Name (Bengali)</label>
+            <p className="text-lg">{office.nameBn}</p>
+          </div>
         </div>
-        <div>
-          <label className="text-sm font-medium text-gray-500">Name (Bengali)</label>
-          <p className="text-lg">{office.nameBn}</p>
+
+        {/* Code and Type side by side */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="text-sm font-medium text-gray-500">Code</label>
+            <p className="flex items-center gap-2">
+              <Hash className="h-4 w-4" />
+              {office.code}
+            </p>
+          </div>
+          <div>
+            <label className="text-sm font-medium text-gray-500">Type</label>
+            <p>{office.type}</p>
+          </div>
         </div>
-        <div>
-          <label className="text-sm font-medium text-gray-500">Code</label>
-          <p className="flex items-center gap-2">
-            <Hash className="h-4 w-4" />
-            {office.code}
-          </p>
-        </div>
-        <div>
-          <label className="text-sm font-medium text-gray-500">Type</label>
-          <p>{office.type}</p>
-        </div>
+
+        {/* Status */}
         <div>
           <label className="text-sm font-medium text-gray-500">Status</label>
           <p className="flex items-center gap-2">

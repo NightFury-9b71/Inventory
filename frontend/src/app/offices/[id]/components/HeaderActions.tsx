@@ -1,22 +1,29 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Edit, Plus, Trash2 } from "lucide-react";
-import { PermissionGuard } from "@/components/auth/Guards";
-import { Permission } from "@/types/auth";
+import Can from "@/components/auth/Can";
 import { DeleteConfirmationDialog } from "@/components/ui/delete-confirmation-dialog";
-import { useOfficeCrud } from "../hooks/useOfficeCrud";
 
 type Props = {
   officeName?: string;
+  handleBack?: () => void;
+  handleEdit?: () => void;
+  handleAddChild?: () => void;
+  handleDelete?: () => void;
+  deleting?: boolean;
 };
 
 export default function HeaderActions({ 
   officeName = "",
+  handleBack,
+  handleEdit,
+  handleAddChild,
+  handleDelete,
+  deleting = false,
 }: Props) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const { handleBack, handleEdit, handleAddChild, handleDelete, deleting } = useOfficeCrud();
 
   const handleDeleteConfirm = () => {
     if (handleDelete) {
@@ -35,23 +42,23 @@ export default function HeaderActions({
           </Button>
           <div className="flex gap-2">
             {/* Only show Edit button if user has permission */}
-            <PermissionGuard permission={Permission.EDIT_OFFICE}>
+            <Can page="/offices" action="edit">
               <Button variant="outline" onClick={handleEdit}>
                 <Edit className="h-4 w-4 mr-2" />
                 Edit Office
               </Button>
-            </PermissionGuard>
+            </Can>
             
             {/* Only show Add Child button if user has permission */}
-            <PermissionGuard permission={Permission.CREATE_OFFICE}>
+            <Can page="/offices" action="create">
               <Button onClick={handleAddChild}>
                 <Plus className="h-4 w-4 mr-2" />
                 Add Child Office
               </Button>
-            </PermissionGuard>
+            </Can>
 
             {/* Only show Delete button if user has permission */}
-            <PermissionGuard permission={Permission.DELETE_OFFICE}>
+            <Can page="/offices" action="delete">
               <Button 
                 variant="destructive" 
                 onClick={() => setShowDeleteDialog(true)}
@@ -60,7 +67,7 @@ export default function HeaderActions({
                 <Trash2 className="h-4 w-4 mr-2" />
                 {deleting ? "Deleting..." : "Delete Office"}
               </Button>
-            </PermissionGuard>
+            </Can>
           </div>
         </div>
       </div>

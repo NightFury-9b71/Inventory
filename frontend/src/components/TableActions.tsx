@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Eye, Edit, Trash2 } from "lucide-react";
 import { DeleteConfirmationDialog } from "@/components/ui/delete-confirmation-dialog";
+import Can from "@/components/auth/Can";
 
 interface TableActionsProps<T = any> {
   item: T;
@@ -63,24 +64,30 @@ export default function TableActions<T extends { id: number | string }>({
     <>
       <div className="flex gap-2">
         {showView && (
-          <Button variant="ghost" size="sm" onClick={handleView}>
-            <Eye className="h-4 w-4" />
-          </Button>
+          <Can page="/offices" action="view">
+            <Button variant="ghost" size="sm" onClick={handleView}>
+              <Eye className="h-4 w-4" />
+            </Button>
+          </Can>
         )}
         {showEdit && (
-          <Button variant="ghost" size="sm" onClick={handleEdit}>
-            <Edit className="h-4 w-4" />
-          </Button>
+          <Can page="/offices" action="edit">
+            <Button variant="ghost" size="sm" onClick={handleEdit}>
+              <Edit className="h-4 w-4" />
+            </Button>
+          </Can>
         )}
         {showDelete && onDelete && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setDeleteDialogOpen(true)}
-            disabled={isDeleting}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          <Can page="/offices" action="delete">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setDeleteDialogOpen(true)}
+              disabled={isDeleting}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </Can>
         )}
       </div>
 

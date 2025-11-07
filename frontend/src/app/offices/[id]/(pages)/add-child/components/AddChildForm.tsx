@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Save, AlertCircle } from "lucide-react";
+import Can from "@/components/auth/Can";
 
 type OfficeFormData = {
   name: string;
@@ -168,10 +169,12 @@ export default function AddChildForm({
 
           {/* Form Actions */}
           <div className="flex gap-2 pt-4 border-t">
-            <Button type="submit" disabled={saving}>
-              <Save className="h-4 w-4 mr-2" />
-              {saving ? "Adding..." : "Add Child Office"}
-            </Button>
+            <Can page="/offices" action="create">
+              <Button type="submit" disabled={saving}>
+                <Save className="h-4 w-4 mr-2" />
+                {saving ? "Adding..." : "Add Child Office"}
+              </Button>
+            </Can>
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancel
             </Button>

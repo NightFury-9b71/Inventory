@@ -1,56 +1,36 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import { ROUTE_ACCESS_CONFIG } from '@/lib/auth-config';
-import { decodeToken, isPublicPath, hasMinimumRole } from '@/lib/auth-helpers';
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { KEY } from "@/lib/api";
+import { canAccessRoute } from "./lib/polices";
+import { UserRole } from "./services/auth_service";
 
+export function middleware(req: NextRequest) {
+  const url = req.nextUrl.pathname;
+  const userCookie = req.cookies.get(KEY.user_info)?.value;
 
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-  const token = request.cookies.get('authToken')?.value;
+  let role = 'GUEST'; // default for unauthenticated
 
-  // Allow access to public paths
-  if (isPublicPath(pathname)) {
-    // If authenticated user tries to access login/register, redirect to dashboard
-    if (token && (pathname.startsWith('/login') || pathname.startsWith('/register'))) {
-      return NextResponse.redirect(new URL('/dashboard', request.url));
+  if (userCookie) {
+    try {
+      const user = JSON.parse(userCookie);
+      role = user.role || 'GUEST';
+    } catch (error) {
+      // Invalid cookie, treat as guest
+      role = 'GUEST';
     }
-    // For root path, redirect based on auth status
-    if (pathname === '/') {
-      if (token) {
-        return NextResponse.redirect(new URL('/dashboard', request.url));
-      }
-      // Allow unauthenticated access to landing page
-      return NextResponse.next();
-    }
-    return NextResponse.next();
   }
 
-  // Protected routes - require authentication
-  if (!token) {
-    const loginUrl = new URL('/login', request.url);
-    // Store the attempted URL to redirect back after login
-    loginUrl.searchParams.set('callbackUrl', pathname);
-    return NextResponse.redirect(loginUrl);
+  // If unauthorized route → redirect to login
+  if (!canAccessRoute(role as UserRole, url)) {
+    return NextResponse.redirect(new URL("/login", req.url));
   }
 
-  // Decode token and extract user role
-  const decodedToken = decodeToken(token);
-  const userRole = decodedToken?.role;
-
-  // Check role-based access for protected routes
-  const routeConfig = ROUTE_ACCESS_CONFIG.find(route => pathname.startsWith(route.path));
-  
-  if (routeConfig && !hasMinimumRole(userRole, routeConfig.minRole)) {
-    // User doesn't have required role for this route
-    return NextResponse.redirect(new URL('/dashboard?error=unauthorized', request.url));
-  }
-
-  // User is authenticated and authorized, allow access
   return NextResponse.next();
 }
 
+// Protect only internal routes
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|.*\\..*|favicon.ico).*)',
+    "/((?!_next/static|_next/image|.*\\..*|favicon.ico|login|register|forgot-password|reset-password).*)",
   ],
 };

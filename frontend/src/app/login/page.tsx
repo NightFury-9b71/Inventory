@@ -2,10 +2,7 @@
 
 import React from "react";
 import { useLoginForm } from "./hooks/useLoginForm";
-import LoginHeader from "./components/LoginHeader";
-import DemoCredentialsCard from "./components/DemoCredentialsCard";
-import LoginFormCard from "./components/LoginFormCard";
-import { Toaster } from "sonner";
+import { DemoCredentialsCard, LoginHeader, LoginFormCard } from "./components";
 
 interface LoginPageProps {
   onLoginSuccess?: (data: { username: string; password: string; rememberMe: boolean }) => void;
@@ -44,8 +41,6 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
           onSignUp={handleSignUp}
         />
       </div>
-
-      <Toaster position="top-right" richColors />
     </div>
   );
 }

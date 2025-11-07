@@ -1,34 +1,18 @@
 'use client';
 
-import { useDashboardStats } from '@/hooks/queries/useDashboard';
 import { Card } from '@/components/ui/card';
 import { BarChart3, Package, TrendingUp, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
 export default function DashboardPage() {
-  const { data: stats, isLoading, error } = useDashboardStats();
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-slate-600">Loading dashboard...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <Card className="p-6 text-center">
-        <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-        <h3 className="text-lg font-semibold mb-2">Error Loading Dashboard</h3>
-        <p className="text-slate-600">Failed to load dashboard statistics</p>
-      </Card>
-    );
-  }
+  // Mock stats data
+  const stats = {
+    totalItems: 150,
+    totalStock: 2500,
+    lowStockItems: 5,
+    totalPurchaseValue: 50000,
+  };
 
   return (
     <div className="space-y-6">
@@ -85,7 +69,7 @@ export default function DashboardPage() {
             <div>
               <p className="text-sm text-slate-600 mb-2">Purchase Value (Tk)</p>
               <p className="text-3xl font-bold text-slate-900">
-                ৳{(stats?.totalPurchaseValue || 0).toFixed(2)}
+                ৳{(stats?.totalPurchaseValue/1000 || 0).toFixed(2)}K
               </p>
             </div>
             <div className="bg-purple-100 p-4 rounded-lg">
@@ -99,38 +83,42 @@ export default function DashboardPage() {
       <div>
         <h2 className="text-2xl font-bold text-slate-900 mb-4">Quick Actions</h2>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Link href="/items">
-            <Button variant="outline" className="w-full justify-center h-auto py-4">
-              <div className="text-center">
-                <Package className="h-6 w-6 mx-auto mb-2" />
-                <p className="text-sm font-medium">View Items</p>
-              </div>
-            </Button>
-          </Link>
-          <Link href="/purchases">
-            <Button variant="outline" className="w-full justify-center h-auto py-4">
-              <div className="text-center">
-                <BarChart3 className="h-6 w-6 mx-auto mb-2" />
-                <p className="text-sm font-medium">View Purchases</p>
-              </div>
-            </Button>
-          </Link>
-          <Link href="/distributions">
-            <Button variant="outline" className="w-full justify-center h-auto py-4">
-              <div className="text-center">
-                <TrendingUp className="h-6 w-6 mx-auto mb-2" />
-                <p className="text-sm font-medium">View Distributions</p>
-              </div>
-            </Button>
-          </Link>
-          <Link href="/analytics">
-            <Button variant="outline" className="w-full justify-center h-auto py-4">
-              <div className="text-center">
-                <BarChart3 className="h-6 w-6 mx-auto mb-2" />
-                <p className="text-sm font-medium">View Analytics</p>
-              </div>
-            </Button>
-          </Link>
+
+            <Link href="/items">
+              <Button variant="outline" className="w-full justify-center h-auto py-4">
+                <div className="text-center">
+                  <Package className="h-6 w-6 mx-auto mb-2" />
+                  <p className="text-sm font-medium">View Items</p>
+                </div>
+              </Button>
+            </Link>
+
+            <Link href="/purchases">
+              <Button variant="outline" className="w-full justify-center h-auto py-4">
+                <div className="text-center">
+                  <BarChart3 className="h-6 w-6 mx-auto mb-2" />
+                  <p className="text-sm font-medium">View Purchases</p>
+                </div>
+              </Button>
+            </Link>
+
+            <Link href="/distributions">
+              <Button variant="outline" className="w-full justify-center h-auto py-4">
+                <div className="text-center">
+                  <TrendingUp className="h-6 w-6 mx-auto mb-2" />
+                  <p className="text-sm font-medium">View Distributions</p>
+                </div>
+              </Button>
+            </Link>
+
+            <Link href="/analytics">
+              <Button variant="outline" className="w-full justify-center h-auto py-4">
+                <div className="text-center">
+                  <BarChart3 className="h-6 w-6 mx-auto mb-2" />
+                  <p className="text-sm font-medium">View Analytics</p>
+                </div>
+              </Button>
+            </Link>
         </div>
       </div>
 

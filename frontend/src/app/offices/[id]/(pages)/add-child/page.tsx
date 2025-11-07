@@ -1,35 +1,58 @@
 "use client";
 
 import React from "react";
-import { useOfficeCrud } from "../../hooks/useOfficeCrud";
+import { useItem } from "@/components/table";
+import { useParams } from "next/navigation";
+
+type OfficeFormData = {
+  name: string;
+  nameBn: string;
+  code: string;
+  type: string;
+  description: string;
+  orderIndex: string;
+  isActive: boolean;
+};
+
+import { createOffice } from "@/services/office_service";
 import AddChildHeader from "./components/AddChildHeader";
 import AddChildForm from "./components/AddChildForm";
-import { useRequirePermission } from "@/hooks/useAuthorization";
-import { Permission } from "@/types/auth";
 
 export default function AddChildOfficePage() {
-  // Protect this page - only users with CREATE_OFFICE permission can access
-  useRequirePermission(Permission.CREATE_OFFICE);
+  const params = useParams();
+  const parentId = params.id as string;
 
   const {
-    office,
+    item: office,
     saving,
     error,
     handleInputChange,
     handleCreateSubmit,
     handleBack,
     handleCancel,
-  } = useOfficeCrud({ createMode: true, skipFetch: true });
+  } = useItem<OfficeFormData>({
+    crud: {
+      basePath: '/offices',
+      create: createOffice,
+    },
+    createMode: true,
+    skipFetch: true,
+  });
+
+  // Type-safe input change handler
+  const handleFormInputChange = (field: string, value: any) => {
+    handleInputChange(field as keyof OfficeFormData, value);
+  };
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <AddChildHeader onBack={handleBack} />
 
       <AddChildForm
-        office={office}
+        office={office as OfficeFormData}
         saving={saving}
         error={error}
-        onInputChange={handleInputChange}
+        onInputChange={handleFormInputChange}
         onSubmit={handleCreateSubmit}
         onCancel={handleCancel}
       />

@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useLogin } from "@/hooks/queries/useLogin";
 import { toast } from "sonner";
+import { useLoginMutation } from "@/services/auth_service";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface LoginFormData {
   username: string;
@@ -12,6 +13,7 @@ interface LoginFormData {
 export function useLoginForm(onLoginSuccess?: (data: LoginFormData) => void) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { refreshUser } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState<LoginFormData>({
     username: "",
@@ -19,8 +21,7 @@ export function useLoginForm(onLoginSuccess?: (data: LoginFormData) => void) {
     rememberMe: false,
   });
 
-  const loginMutation = useLogin();
-
+  const loginMutation = useLoginMutation();
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -29,36 +30,37 @@ export function useLoginForm(onLoginSuccess?: (data: LoginFormData) => void) {
   const handleCheckboxChange = (checked: boolean) => {
     setFormData((prev) => ({ ...prev, rememberMe: checked }));
   };
-
+  
   const handleSubmit = (e: React.MouseEvent) => {
     e.preventDefault();
-
+    
     if (!formData.username || !formData.password) {
       toast.error("Please fill in all fields");
       return;
     }
-
+    
     loginMutation.mutate(formData, {
       onSuccess: () => {
         toast.success("Welcome back!", {
           description: "You have successfully signed in to your account.",
         });
 
+        refreshUser();
+
         onLoginSuccess?.(formData);
 
         // Redirect to callback URL or dashboard
         const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
-        setTimeout(() => router.push(callbackUrl), 1000);
+        router.push(callbackUrl);
       },
       onError: (error: Error) => {
-        toast.error("Login failed", {
-          description: error.message || "Please check your credentials and try again.",
+        toast.error("Invalid Credentials", {
+          description: "Please check your credentials and try again.",
         });
+        console.log(error.message);
       },
     });
-  };
-
-  const handleForgotPassword = () => {
+  };  const handleForgotPassword = () => {
     toast.info("Password reset link sent!", {
       description: "Check your username for password reset instructions.",
     });

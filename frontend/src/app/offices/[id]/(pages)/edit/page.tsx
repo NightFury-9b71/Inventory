@@ -1,20 +1,21 @@
 "use client";
 
 import React from "react";
-import { useOfficeCrud } from "../../hooks/useOfficeCrud";
+import { useItem } from "@/components/table";
+import { useParams } from "next/navigation";
+import { Office } from "@/types/office";
+import { getOfficeById, updateOffice, deleteOffice } from "@/services/office_service";
 import EditOfficeHeader from "./components/EditOfficeHeader";
 import EditOfficeForm from "./components/EditOfficeForm";
 import LoadingState from "../../components/LoadingState";
 import ErrorState from "../../components/ErrorState";
-import { useRequirePermission } from "@/hooks/useAuthorization";
-import { Permission } from "@/types/auth";
 
 export default function EditOfficePage() {
-  // Protect this page - only users with EDIT_OFFICE permission can access
-  useRequirePermission(Permission.EDIT_OFFICE);
+  const params = useParams();
+  const officeId = params.id as string;
 
   const {
-    office,
+    item: office,
     loading,
     error,
     saving,
@@ -22,7 +23,15 @@ export default function EditOfficePage() {
     handleUpdateSubmit,
     handleBack,
     handleCancel,
-  } = useOfficeCrud();
+  } = useItem<Office>({
+    id: officeId,
+    crud: {
+      basePath: '/offices',
+      getById: (id) => getOfficeById(Number(id)),
+      update: (id, data) => updateOffice(Number(id), data),
+      delete: (id) => deleteOffice(Number(id)),
+    },
+  });
 
   // Loading State
   if (loading) {
@@ -30,7 +39,7 @@ export default function EditOfficePage() {
   }
 
   // Error State
-  if (error || !office) {
+  if (error || !office || !office.id) {
     return <ErrorState message={error || undefined} onBack={handleBack} />;
   }
 
@@ -40,7 +49,7 @@ export default function EditOfficePage() {
       <EditOfficeHeader onBack={handleBack} />
 
       <EditOfficeForm
-        office={office}
+        office={office as Office}
         saving={saving}
         error={error}
         onInputChange={handleInputChange}

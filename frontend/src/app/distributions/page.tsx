@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { PageTableProvider } from '@/contexts/PageTableContext';
-import {  PageHeader } from '@/components/page';
+import {  PageHeader } from '@/components/table';
 import { Card } from '@/components/ui/card';
 import { Send, Building2, Package } from 'lucide-react';
 
