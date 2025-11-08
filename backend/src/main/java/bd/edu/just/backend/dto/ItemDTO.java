@@ -8,15 +8,16 @@ public class ItemDTO {
     private String categoryName;
     private String code;
     private String description;
-    private String units;
-    private Double unitPrice;
+    private Long unitId;
+    private String unitName;
+    private String unitSymbol;
     private Integer quantity;
     private Boolean isActive;
 
     public ItemDTO() {}
 
     public ItemDTO(Long id, String name, String nameBn, Long categoryId, String categoryName, 
-                   String code, String description, String units, Double unitPrice, 
+                   String code, String description, Long unitId, String unitName, String unitSymbol,
                    Integer quantity, Boolean isActive) {
         this.id = id;
         this.name = name;
@@ -25,8 +26,9 @@ public class ItemDTO {
         this.categoryName = categoryName;
         this.code = code;
         this.description = description;
-        this.units = units;
-        this.unitPrice = unitPrice;
+        this.unitId = unitId;
+        this.unitName = unitName;
+        this.unitSymbol = unitSymbol;
         this.quantity = quantity;
         this.isActive = isActive;
     }
@@ -53,11 +55,14 @@ public class ItemDTO {
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
     
-    public String getUnits() { return units; }
-    public void setUnits(String units) { this.units = units; }
+    public Long getUnitId() { return unitId; }
+    public void setUnitId(Long unitId) { this.unitId = unitId; }
     
-    public Double getUnitPrice() { return unitPrice; }
-    public void setUnitPrice(Double unitPrice) { this.unitPrice = unitPrice; }
+    public String getUnitName() { return unitName; }
+    public void setUnitName(String unitName) { this.unitName = unitName; }
+    
+    public String getUnitSymbol() { return unitSymbol; }
+    public void setUnitSymbol(String unitSymbol) { this.unitSymbol = unitSymbol; }
     
     public Integer getQuantity() { return quantity; }
     public void setQuantity(Integer quantity) { this.quantity = quantity; }

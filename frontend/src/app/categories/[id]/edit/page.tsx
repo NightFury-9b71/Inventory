@@ -1,23 +1,37 @@
 "use client";
 
 import React from "react";
-import { useEditCategory } from "./hooks/useEditCategory";
+import { useItem } from "@/components/table";
+import { useParams } from "next/navigation";
+import { ItemCategory } from "@/types/item";
+import { getCategoryById, updateCategory, deleteCategory } from "@/services/category_service";
 import EditCategoryHeader from "./components/EditCategoryHeader";
 import EditCategoryForm from "./components/EditCategoryForm";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
 
 export default function EditCategoryPage() {
+  const params = useParams();
+  const categoryId = params.id as string;
+
   const {
-    category,
+    item: category,
     loading,
     error,
     saving,
     handleInputChange,
-    handleSubmit,
+    handleUpdateSubmit,
     handleBack,
     handleCancel,
-  } = useEditCategory();
+  } = useItem<ItemCategory>({
+    id: categoryId,
+    crud: {
+      basePath: '/categories',
+      getById: (id) => getCategoryById(Number(id)),
+      update: (id, data) => updateCategory(Number(id), data),
+      delete: (id) => deleteCategory(Number(id)),
+    },
+  });
 
   // Loading State
   if (loading) {
@@ -25,7 +39,7 @@ export default function EditCategoryPage() {
   }
 
   // Error State
-  if (error || !category) {
+  if (error || !category || !category.id) {
     return <ErrorState message={error || undefined} onBack={handleBack} />;
   }
 
@@ -35,11 +49,11 @@ export default function EditCategoryPage() {
       <EditCategoryHeader onBack={handleBack} />
 
       <EditCategoryForm
-        category={category}
+        category={category as ItemCategory}
         saving={saving}
         error={error}
         onInputChange={handleInputChange}
-        onSubmit={handleSubmit}
+        onSubmit={handleUpdateSubmit}
         onCancel={handleCancel}
       />
     </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { CategoryFormData } from "@/types/inventory";
+import { ItemCategory, CategoryFormData } from "@/types/item";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,13 +10,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Save, AlertCircle } from "lucide-react";
 
-type CategoryFormType = CategoryFormData & { isActive?: boolean };
-
 type Props = {
-  category: CategoryFormType;
+  category: ItemCategory;
   saving: boolean;
   error?: string | null;
-  onInputChange: (field: string, value: any) => void;
+  onInputChange: (field: keyof ItemCategory, value: any) => void;
   onSubmit: (e: React.FormEvent) => void;
   onCancel: () => void;
 };

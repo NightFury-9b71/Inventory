@@ -54,4 +54,14 @@ public class PurchaseController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<PurchaseDTO> updatePurchase(@PathVariable Long id, @RequestBody PurchaseDTO purchaseDTO) {
+        try {
+            PurchaseDTO updated = purchaseService.updatePurchase(id, purchaseDTO);
+            return ResponseEntity.ok(updated);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 }

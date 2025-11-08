@@ -18,7 +18,7 @@ export default function Header() {
     <header className="bg-white border-b border-gray-200 px-4 lg:px-6 h-16 flex items-center justify-between sticky top-0 z-20">
       <div className="flex items-center gap-4">
         <div className="font-semibold text-xl text-gray-900">
-          Dashboard
+          {/* Dashboard */}
         </div>
       </div>
 

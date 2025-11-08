@@ -56,13 +56,13 @@ export function DeleteConfirmationDialog({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
-          <AlertDialogDescription className="space-y-3">
-            <p>{description}</p>
+          <AlertDialogDescription>
+            {description}
             {warningMessage && (
-              <div className="bg-destructive/10 border border-destructive/20 rounded-md p-3">
-                <p className="text-destructive font-medium text-sm">
+              <div className="bg-destructive/10 border border-destructive/20 rounded-md p-3 mt-3">
+                <div className="text-destructive font-medium text-sm">
                   ⚠️ {warningMessage}
-                </p>
+                </div>
               </div>
             )}
             <div className="space-y-2 pt-2">
@@ -85,7 +85,7 @@ export function DeleteConfirmationDialog({
           <AlertDialogAction
             onClick={handleConfirm}
             disabled={isConfirmDisabled}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            className="bg-destructive hover:bg-destructive/90"
           >
             {isDeleting ? "Deleting..." : "Delete"}
           </AlertDialogAction>

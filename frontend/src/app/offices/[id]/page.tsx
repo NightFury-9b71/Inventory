@@ -49,7 +49,7 @@ export default function OfficeDetailPage() {
 
   // Main Component Stack
   return (
-    <div className="p-6">
+    <div>
       <HeaderActions
         officeName={fullOffice.name}
         handleBack={handleBack}

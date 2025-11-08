@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useCreateCategory } from "@/hooks/queries/useCategories";
-import { CategoryFormData } from "@/types/inventory";
+import { createCategory } from "@/services/category_service";
+import { CategoryFormData } from "@/types/item";
 import { toast } from "sonner";
 
 export function useNewCategory() {
@@ -14,7 +14,8 @@ export function useNewCategory() {
     description: "",
   });
 
-  const createMutation = useCreateCategory();
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleInputChange = (field: string, value: any) => {
     setCategory({ ...category, [field]: value });
@@ -22,18 +23,23 @@ export function useNewCategory() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSaving(true);
+    setError(null);
 
     try {
-      await createMutation.mutateAsync(category);
+      await createCategory(category);
       toast.success("Category created successfully", {
         description: `${category.name} has been added.`,
       });
       router.push("/categories");
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || err.message || "Failed to create category";
+      setError(errorMessage);
       toast.error("Failed to create category", {
         description: errorMessage,
       });
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -42,8 +48,8 @@ export function useNewCategory() {
 
   return {
     category,
-    saving: createMutation.isPending,
-    error: createMutation.error ? "Failed to create category" : null,
+    saving,
+    error,
     handleInputChange,
     handleSubmit,
     handleBack,

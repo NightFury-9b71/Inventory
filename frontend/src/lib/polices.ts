@@ -1,5 +1,7 @@
 import { UserRole as Role } from "@/services/auth_service";
 
+export type { Role };
+
 type Policy = {
   [page: string]: { actions: string[] };
 };
@@ -14,6 +16,8 @@ export const policies: Record<Role, Policy> = {
   DEPARTMENT_ADMIN: {
     "/offices": { actions: ["view", "edit"] },
     "/items": { actions: ["view", "edit", "create"] },
+    "/purchases": { actions: ["view", "edit", "create"] },
+    "/distributions": { actions: ["view", "edit", "create"] },
     "/reports": { actions: ["view"] },
     "/dashboard": { actions: ["view"] },
   },
@@ -21,12 +25,16 @@ export const policies: Record<Role, Policy> = {
     "/office": { actions: ["view", "edit"] },
     "/offices": { actions: ["view", "edit", "create"] },
     "/items": { actions: ["view", "edit", "create"] },
+    "/purchases": { actions: ["view", "edit", "create"] },
+    "/distributions": { actions: ["view", "edit", "create"] },
     "/reports": { actions: ["view"] },
     "/dashboard": { actions: ["view"] },
   },
   OFFICE_MANAGER: {
     "/offices": { actions: ["view"] },
     "/items": { actions: ["view", "edit", "create"] },
+    "/purchases": { actions: ["view", "edit", "create"] },
+    "/distributions": { actions: ["view", "edit", "create"] },
     "/reports": { actions: ["view"] },
     "/dashboard": { actions: ["view"] },
   },
@@ -34,10 +42,14 @@ export const policies: Record<Role, Policy> = {
     "/dashboard": { actions: ["view"] },
     "/offices": { actions: ["view"] },
     "/items": { actions: ["view"] },
+    "/purchases": { actions: ["view"] },
+    "/distributions": { actions: ["view"] },
   },
   VIEWER: {
     "/offices": { actions: ["view"] },
     "/items": { actions: ["view"] },
+    "/purchases": { actions: ["view"] },
+    "/distributions": { actions: ["view"] },
     "/reports": { actions: ["view"] },
     "/dashboard": { actions: ["view"] },
   },

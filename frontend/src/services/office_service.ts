@@ -1,4 +1,5 @@
 import api from "@/lib/api";
+import { Office } from "@/types/office";
 
 
 export const ENDPOINTS = {
@@ -12,7 +13,7 @@ export const ENDPOINTS = {
     delete_office: (id: number) => `/offices/${id}`,
 }
 
-export const getOffices = async () => {
+export const getOffices = async (): Promise<Office[]> => {
   const response = await api.get(ENDPOINTS.get_offices);
   return response.data;
 };

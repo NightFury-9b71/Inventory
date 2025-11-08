@@ -27,11 +27,9 @@ public class Item {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "units")
-    private String units;
-
-    @Column(name = "unit_price")
-    private Double unitPrice;
+    @ManyToOne
+    @JoinColumn(name = "unit_id")
+    private Unit unit;
 
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
@@ -116,20 +114,12 @@ public class Item {
         return this.description;
     }
 
-    public String getUnits() {
-        return units;
+    public Unit getUnit() {
+        return unit;
     }
 
-    public void setUnits(String units) {
-        this.units = units;
-    }
-
-    public Double getUnitPrice() {
-        return unitPrice;
-    }
-
-    public void setUnitPrice(Double unitPrice) {
-        this.unitPrice = unitPrice;
+    public void setUnit(Unit unit) {
+        this.unit = unit;
     }
 
     public Integer getQuantity() {

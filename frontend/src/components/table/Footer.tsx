@@ -24,7 +24,7 @@ export default function PageFooter({
   if (!children && !hasPagination) return null;
 
   return (
-    <div className="flex justify-between items-center mt-4">
+    <div className="flex flex-col md:flex-row md:justify-between md:items-center mt-4 gap-4">
       {totalCount !== undefined && (
         <div className="text-sm text-gray-600">
           Total: {totalCount} items

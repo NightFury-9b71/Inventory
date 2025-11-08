@@ -43,7 +43,7 @@ export const PageSubtitle: FC<SubtitleProps> = ({ subtitle, description }) => {
 };
 
 export const PageToolbar: FC<{ children: ReactNode }> = ({ children }) => {
-  return <div className="flex gap-2">{children}</div>;
+  return <div className="flex flex-wrap gap-2">{children}</div>;
 };
 
 
@@ -55,7 +55,7 @@ export default function PageHeader({
   const toolbarChild = React.Children.toArray(children).find(child => React.isValidElement(child) && child.type === PageToolbar);
 
   return (
-    <div className="flex justify-between items-start mb-4">
+    <div className="flex flex-col md:flex-row md:justify-between md:items-start mb-4 gap-4">
       <div>
         {titleChild}
         {subtitleChild}

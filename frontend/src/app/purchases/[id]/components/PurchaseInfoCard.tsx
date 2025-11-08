@@ -1,0 +1,87 @@
+"use client";
+
+import React from "react";
+import { Purchase } from "@/types/purchase";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ShoppingCart, Package, DollarSign, User, CheckCircle, XCircle } from "lucide-react";
+
+type Props = {
+  purchase: Purchase;
+};
+
+export default function PurchaseInfoCard({ purchase }: Props) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <ShoppingCart className="h-5 w-5" />
+          Purchase Information
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {/* Item Name and Quantity side by side */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="text-sm font-medium text-gray-500">Item</label>
+            <p className="text-lg font-semibold">{purchase.itemName}</p>
+          </div>
+          <div>
+            <label className="text-sm font-medium text-gray-500">Quantity</label>
+            <p className="text-lg">{purchase.quantity}</p>
+          </div>
+        </div>
+
+        {/* Unit Price and Total Price side by side */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="text-sm font-medium text-gray-500">Unit Price</label>
+                        <p className="flex items-center gap-2">
+              <DollarSign className="h-4 w-4" />
+              <span className="font-mono text-lg">{purchase.unitPrice.toFixed(2)} Tk</span>
+            </p>
+          </div>
+          <div>
+            <label className="text-sm font-medium text-gray-500">Total Price</label>
+            <p className="flex items-center gap-2">
+              <DollarSign className="h-4 w-4" />
+              <span className="font-mono text-lg font-semibold">{purchase.totalPrice.toFixed(2)} Tk</span>
+            </p>
+          </div>
+        </div>
+
+        {/* Vendor Name */}
+        <div>
+          <label className="text-sm font-medium text-gray-500">Vendor</label>
+          <p className="flex items-center gap-2">
+            <User className="h-4 w-4" />
+            <span className="text-lg">{purchase.vendorName}</span>
+          </p>
+        </div>
+
+        {/* Purchase Date */}
+        <div>
+          <label className="text-sm font-medium text-gray-500">Purchase Date</label>
+          <p className="text-lg">{new Date(purchase.purchaseDate).toLocaleDateString()}</p>
+        </div>
+
+        {/* Status */}
+        <div>
+          <label className="text-sm font-medium text-gray-500">Status</label>
+          <p className="flex items-center gap-2">
+            {purchase.isActive ? (
+              <>
+                <CheckCircle className="h-4 w-4 text-green-500" />
+                <span className="text-green-600">Active</span>
+              </>
+            ) : (
+              <>
+                <XCircle className="h-4 w-4 text-red-500" />
+                <span className="text-red-600">Inactive</span>
+              </>
+            )}
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}

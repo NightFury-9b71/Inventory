@@ -2,6 +2,7 @@ package bd.edu.just.backend.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import bd.edu.just.backend.model.User;
 
 @Entity
 @Table(name = "item_distributions")
@@ -20,8 +21,8 @@ public class ItemDistribution {
     private Office office;
 
     @ManyToOne
-    @JoinColumn(name = "employee_id", nullable = false)
-    private Employee employee;
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
@@ -62,10 +63,10 @@ public class ItemDistribution {
 
     public ItemDistribution() {}
 
-    public ItemDistribution(Item item, Office office, Employee employee, Integer quantity) {
+    public ItemDistribution(Item item, Office office, User user, Integer quantity) {
         this.item = item;
         this.office = office;
-        this.employee = employee;
+        this.user = user;
         this.quantity = quantity;
         this.isActive = true;
         this.status = DistributionStatus.PENDING;
@@ -96,12 +97,12 @@ public class ItemDistribution {
         this.office = office;
     }
 
-    public Employee getEmployee() {
-        return employee;
+    public User getUser() {
+        return user;
     }
 
-    public void setEmployee(Employee employee) {
-        this.employee = employee;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public Integer getQuantity() {

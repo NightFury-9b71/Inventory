@@ -1,6 +1,6 @@
 // Table components exports
-export { useTable } from './useTable';
-export { useItem } from './useItem';
+export { useTable } from '../../hooks/useTable';
+export { useItem } from '../../hooks/useItem';
 export { Table } from './Table';
 export { TableRowActions } from './TableRowActions';
 export { default as PageHeader, PageTitle, PageSubtitle, PageToolbar } from './Header';

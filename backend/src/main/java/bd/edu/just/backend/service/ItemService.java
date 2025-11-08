@@ -3,8 +3,10 @@ package bd.edu.just.backend.service;
 import bd.edu.just.backend.dto.ItemDTO;
 import bd.edu.just.backend.model.Item;
 import bd.edu.just.backend.model.ItemCategory;
+import bd.edu.just.backend.model.Unit;
 import bd.edu.just.backend.repository.ItemRepository;
 import bd.edu.just.backend.repository.ItemCategoryRepository;
+import bd.edu.just.backend.repository.UnitRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +22,9 @@ public class ItemService {
 
     @Autowired
     private ItemCategoryRepository categoryRepository;
+
+    @Autowired
+    private UnitRepository unitRepository;
 
     public List<ItemDTO> getAllItems() {
         return itemRepository.findByIsActiveTrue().stream()
@@ -50,8 +55,14 @@ public class ItemService {
         item.setCategory(category);
         item.setCode(itemDTO.getCode());
         item.setDescription(itemDTO.getDescription());
-        item.setUnits(itemDTO.getUnits());
-        item.setUnitPrice(itemDTO.getUnitPrice());
+        
+        // Set unit if provided
+        if (itemDTO.getUnitId() != null) {
+            Unit unit = unitRepository.findById(itemDTO.getUnitId())
+                    .orElseThrow(() -> new RuntimeException("Unit not found"));
+            item.setUnit(unit);
+        }
+        
         item.setQuantity(itemDTO.getQuantity() != null ? itemDTO.getQuantity() : 0);
         item.setIsActive(true);
 
@@ -74,8 +85,14 @@ public class ItemService {
         if (itemDTO.getNameBn() != null) item.setNameBn(itemDTO.getNameBn());
         if (itemDTO.getCode() != null) item.setCode(itemDTO.getCode());
         if (itemDTO.getDescription() != null) item.setDescription(itemDTO.getDescription());
-        if (itemDTO.getUnits() != null) item.setUnits(itemDTO.getUnits());
-        if (itemDTO.getUnitPrice() != null) item.setUnitPrice(itemDTO.getUnitPrice());
+        
+        // Update unit if provided
+        if (itemDTO.getUnitId() != null) {
+            Unit unit = unitRepository.findById(itemDTO.getUnitId())
+                    .orElseThrow(() -> new RuntimeException("Unit not found"));
+            item.setUnit(unit);
+        }
+        
         if (itemDTO.getQuantity() != null) item.setQuantity(itemDTO.getQuantity());
 
         Item updatedItem = itemRepository.save(item);
@@ -111,6 +128,10 @@ public class ItemService {
     }
 
     private ItemDTO convertToDTO(Item item) {
+        Long unitId = item.getUnit() != null ? item.getUnit().getId() : null;
+        String unitName = item.getUnit() != null ? item.getUnit().getName() : null;
+        String unitSymbol = item.getUnit() != null ? item.getUnit().getSymbol() : null;
+        
         return new ItemDTO(
                 item.getId(),
                 item.getName(),
@@ -119,8 +140,9 @@ public class ItemService {
                 item.getCategory().getName(),
                 item.getCode(),
                 item.getDescription(),
-                item.getUnits(),
-                item.getUnitPrice(),
+                unitId,
+                unitName,
+                unitSymbol,
                 item.getQuantity(),
                 item.getIsActive()
         );

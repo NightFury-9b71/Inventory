@@ -93,7 +93,7 @@ export default function OfficeTablePage() {
 
   if (error) {
     return (
-      <div className="p-6">
+      <div>
         <div className="text-center py-8">
           <p className="text-red-600 font-semibold">An error occurred while fetching data.</p>
           <p className="text-gray-600 mt-2">{error}</p>
@@ -103,7 +103,7 @@ export default function OfficeTablePage() {
   }
 
   return (
-    <div className="p-6">
+    <div>
       {/* Page Header */}
       <PageHeader>
         <PageTitle title="Office Management" totalCount={totalCount} />

@@ -1,21 +1,18 @@
 'use client';
 
 import React from 'react';
-import { PageTableProvider } from '@/contexts/PageTableContext';
-import {  PageHeader } from '@/components/table';
+import { PageHeader, PageTitle, PageSubtitle, PageToolbar } from '@/components/table';
 import { Card } from '@/components/ui/card';
 import { FileText } from 'lucide-react';
 
 function LogsPageContent() {
   return (
-    <div className="p-6">
+    <div>
       {/* Toolbar: Header */}
-      <PageToolbar>
-        <PageHeader 
-          title="Audit Logs"
-          subtitle="Track all system activities"
-        />
-      </PageToolbar>
+      <PageHeader>
+        <PageTitle title="Audit Logs" />
+        <PageSubtitle subtitle="Track all system activities" />
+      </PageHeader>
 
       {/* Info Card */}
       <Card className="p-12 text-center mt-4">
@@ -33,9 +30,5 @@ function LogsPageContent() {
 }
 
 export default function LogsPage() {
-  return (
-    <PageTableProvider>
-      <LogsPageContent />
-    </PageTableProvider>
-  );
+  return <LogsPageContent />;
 }

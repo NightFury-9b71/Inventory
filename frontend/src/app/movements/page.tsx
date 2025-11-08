@@ -1,21 +1,18 @@
 'use client';
 
 import React from 'react';
-import { PageTableProvider } from '@/contexts/PageTableContext';
-import {  PageHeader } from '@/components/table';
+import { PageHeader, PageTitle, PageSubtitle } from '@/components/table';
 import { Card } from '@/components/ui/card';
 import { ArrowLeftRight } from 'lucide-react';
 
 function MovementsPageContent() {
   return (
-    <div className="p-6">
+    <div>
       {/* Toolbar: Header */}
-      <PageToolbar>
-        <PageHeader 
-          title="Item Movements"
-          subtitle="Track transfers between offices"
-        />
-      </PageToolbar>
+      <PageHeader>
+        <PageTitle title="Item Movements" />
+        <PageSubtitle subtitle="Track transfers between offices" />
+      </PageHeader>
 
       {/* Info Card */}
       <Card className="p-12 text-center mt-4">
@@ -32,9 +29,5 @@ function MovementsPageContent() {
 }
 
 export default function MovementsPage() {
-  return (
-    <PageTableProvider>
-      <MovementsPageContent />
-    </PageTableProvider>
-  );
+  return <MovementsPageContent />;
 }

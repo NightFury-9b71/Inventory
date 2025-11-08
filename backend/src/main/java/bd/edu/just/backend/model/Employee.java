@@ -1,7 +1,6 @@
 package bd.edu.just.backend.model;
 
 import jakarta.persistence.*;
-import java.util.List;
 import java.time.LocalDateTime;
 
 
@@ -28,9 +27,6 @@ public class Employee {
     @ManyToOne
     @JoinColumn(name = "office_id", nullable = false)
     private Office office;
-
-    @OneToMany(mappedBy = "employee")
-    private List<ItemDistribution> itemDistributions;
 
 
     @Column(name = "email", unique = true)
@@ -121,14 +117,6 @@ public class Employee {
 
     public void setOffice(Office office) {
         this.office = office;
-    }
-
-    public List<ItemDistribution> getItemDistributions() {
-        return itemDistributions;
-    }
-
-    public void setItemDistributions(List<ItemDistribution> itemDistributions) {
-        this.itemDistributions = itemDistributions;
     }
 
     public String getEmail() {

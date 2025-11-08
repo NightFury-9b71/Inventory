@@ -72,6 +72,40 @@ public class PurchaseService {
         return convertToDTO(savedPurchase);
     }
 
+    @Transactional
+    public PurchaseDTO updatePurchase(Long id, PurchaseDTO purchaseDTO) {
+        Purchase existingPurchase = purchaseRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Purchase not found with id: " + id));
+
+        Item item = itemRepository.findById(purchaseDTO.getItemId())
+                .orElseThrow(() -> new RuntimeException("Item not found"));
+
+        User user = userRepository.findById(purchaseDTO.getPurchasedById())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Reverse previous stock update
+        itemService.updateStock(existingPurchase.getItem().getId(), -existingPurchase.getQuantity());
+
+        // Update purchase fields
+        existingPurchase.setItem(item);
+        existingPurchase.setQuantity(purchaseDTO.getQuantity());
+        existingPurchase.setUnitPrice(purchaseDTO.getUnitPrice());
+        existingPurchase.setTotalPrice(purchaseDTO.getUnitPrice() * purchaseDTO.getQuantity());
+        existingPurchase.setVendorName(purchaseDTO.getVendorName());
+        existingPurchase.setVendorContact(purchaseDTO.getVendorContact());
+        existingPurchase.setPurchaseDate(purchaseDTO.getPurchaseDate());
+        existingPurchase.setInvoiceNumber(purchaseDTO.getInvoiceNumber());
+        existingPurchase.setRemarks(purchaseDTO.getRemarks());
+        existingPurchase.setPurchasedBy(user);
+
+        Purchase updatedPurchase = purchaseRepository.save(existingPurchase);
+
+        // Update item stock with new quantity
+        itemService.updateStock(item.getId(), purchaseDTO.getQuantity());
+
+        return convertToDTO(updatedPurchase);
+    }
+
     public List<PurchaseDTO> getPurchasesByDateRange(LocalDate startDate, LocalDate endDate) {
         return purchaseRepository.findByDateRange(startDate, endDate).stream()
                 .map(this::convertToDTO)

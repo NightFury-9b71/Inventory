@@ -85,7 +85,7 @@ export default function Sidebar() {
   return (
     <>
       {/* Mobile Toggle Button */}
-      <div className="md:hidden p-2">
+      <div className="md:hidden fixed top-2 left-2 z-50">
         <Button variant="outline" onClick={toggleMobile}>
           <Menu className="h-5 w-5" />
         </Button>
@@ -94,7 +94,8 @@ export default function Sidebar() {
       {/* Sidebar */}
       <aside
         className={`
-          fixed md:relative top-0 left-0 h-full z-50 bg-white border-r border-gray-200 transition-all duration-300 ease-in-out
+          ${isCollapsed ? 'absolute' : 'fixed'} md:${isCollapsed ? 'absolute' : 'relative'} top-0 left-0 h-full z-50 bg-white transition-all duration-300 ease-in-out
+          ${isCollapsed ? '' : 'border-r border-gray-200'}
           ${isOpen ? 'translate-x-0' : '-translate-x-full'}
           md:translate-x-0
           ${isCollapsed ? 'md:w-16' : 'md:w-64'}
