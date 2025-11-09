@@ -16,6 +16,12 @@ export interface ItemInstance {
   barcode: string;
   unitPrice: number;
   status: 'IN_STOCK' | 'DISTRIBUTED' | 'DAMAGED' | 'LOST' | 'RETIRED';
+  distributedToOfficeId?: number;
+  distributedToOfficeName?: string;
+  distributedAt?: string;
+  remarks?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Purchase {

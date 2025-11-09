@@ -8,6 +8,7 @@ import { getPurchaseById, updatePurchase } from "@/services/purchase_service";
 import PurchaseHeaderActions from "./components/PurchaseHeaderActions";
 import PurchaseInfoCard from "./components/PurchaseInfoCard";
 import PurchaseDetailsCard from "./components/PurchaseDetailsCard";
+import BarcodeDisplay from "./components/BarcodeDisplay";
 import LoadingState from "./components/LoadingState";
 import ErrorState from "./components/ErrorState";
 
@@ -60,6 +61,8 @@ export default function PurchaseDetailPage() {
         <PurchaseInfoCard purchase={fullPurchase} />
         <PurchaseDetailsCard purchase={fullPurchase} />
       </div>
+
+      <BarcodeDisplay purchaseId={fullPurchase.id} />
     </div>
   );
 }

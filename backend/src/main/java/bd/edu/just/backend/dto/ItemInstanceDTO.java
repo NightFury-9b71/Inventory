@@ -1,5 +1,7 @@
 package bd.edu.just.backend.dto;
 
+import java.time.LocalDateTime;
+
 public class ItemInstanceDTO {
     private Long id;
     private Long itemId;
@@ -8,6 +10,12 @@ public class ItemInstanceDTO {
     private String barcode;
     private Double unitPrice;
     private String status;
+    private Long distributedToOfficeId;
+    private String distributedToOfficeName;
+    private LocalDateTime distributedAt;
+    private String remarks;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     public ItemInstanceDTO() {}
 
@@ -66,5 +74,53 @@ public class ItemInstanceDTO {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public Long getDistributedToOfficeId() {
+        return distributedToOfficeId;
+    }
+
+    public void setDistributedToOfficeId(Long distributedToOfficeId) {
+        this.distributedToOfficeId = distributedToOfficeId;
+    }
+
+    public String getDistributedToOfficeName() {
+        return distributedToOfficeName;
+    }
+
+    public void setDistributedToOfficeName(String distributedToOfficeName) {
+        this.distributedToOfficeName = distributedToOfficeName;
+    }
+
+    public LocalDateTime getDistributedAt() {
+        return distributedAt;
+    }
+
+    public void setDistributedAt(LocalDateTime distributedAt) {
+        this.distributedAt = distributedAt;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

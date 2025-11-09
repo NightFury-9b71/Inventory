@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -211,6 +212,15 @@ public class PurchaseService {
                 .collect(Collectors.toList());
     }
 
+    public ItemInstanceDTO getItemInstanceByBarcode(String barcode) {
+        Optional<ItemInstance> instance = itemInstanceRepository.findByBarcode(barcode);
+        if (instance.isPresent()) {
+            return convertItemInstanceToDTO(instance.get());
+        } else {
+            throw new RuntimeException("Item instance not found for barcode: " + barcode);
+        }
+    }
+
     private ItemInstanceDTO convertItemInstanceToDTO(ItemInstance instance) {
         ItemInstanceDTO dto = new ItemInstanceDTO();
         dto.setId(instance.getId());
@@ -220,6 +230,16 @@ public class PurchaseService {
         dto.setBarcode(instance.getBarcode());
         dto.setUnitPrice(instance.getUnitPrice());
         dto.setStatus(instance.getStatus().name());
+        dto.setRemarks(instance.getRemarks());
+        dto.setCreatedAt(instance.getCreatedAt());
+        dto.setUpdatedAt(instance.getUpdatedAt());
+        
+        if (instance.getDistributedToOffice() != null) {
+            dto.setDistributedToOfficeId(instance.getDistributedToOffice().getId());
+            dto.setDistributedToOfficeName(instance.getDistributedToOffice().getName());
+        }
+        dto.setDistributedAt(instance.getDistributedAt());
+        
         return dto;
     }
 

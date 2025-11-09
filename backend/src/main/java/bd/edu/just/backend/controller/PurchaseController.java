@@ -103,4 +103,14 @@ public class PurchaseController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @GetMapping("/barcode/{barcode}")
+    public ResponseEntity<ItemInstanceDTO> getItemInstanceByBarcode(@PathVariable String barcode) {
+        try {
+            ItemInstanceDTO itemInstance = purchaseService.getItemInstanceByBarcode(barcode);
+            return ResponseEntity.ok(itemInstance);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }

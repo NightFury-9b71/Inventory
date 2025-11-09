@@ -5,6 +5,7 @@ export const ENDPOINTS = {
   get_purchases: "/purchases",
   purchase_by_id: (id: number) => `/purchases/${id}`,
   purchase_barcodes: (id: number) => `/purchases/${id}/barcodes`,
+  barcode_search: (barcode: string) => `/purchases/barcode/${barcode}`,
   create_purchase: "/purchases",
   recent_purchases: "/purchases/recent",
   purchases_by_date_range: "/purchases/date-range",
@@ -56,5 +57,10 @@ export const getPurchasesByDateRange = async (startDate: string, endDate: string
 
 export const getPurchaseBarcodes = async (id: number): Promise<ItemInstance[]> => {
   const response = await api.get(ENDPOINTS.purchase_barcodes(id));
+  return response.data;
+};
+
+export const getItemInstanceByBarcode = async (barcode: string): Promise<ItemInstance> => {
+  const response = await api.get(ENDPOINTS.barcode_search(barcode));
   return response.data;
 };
