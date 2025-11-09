@@ -49,7 +49,7 @@ export default function PurchaseDetailPage() {
     <div className="p-6">
       <PurchaseHeaderActions
         purchaseId={fullPurchase.id}
-        itemName={fullPurchase.itemName}
+        itemName={fullPurchase.vendorName}
         handleBack={handleBack}
         handleEdit={handleEdit}
         handleDelete={handleDelete}

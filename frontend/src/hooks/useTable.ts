@@ -137,8 +137,13 @@ export function useTable<T extends Record<string, any>>({
     try {
       const result = await crud.getAll();
       setData(result);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+    } catch (err: any) {
+      // Check if it's an authentication error
+      if (err.response?.status === 401) {
+        setError('Authentication required. Please log in.');
+      } else {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -150,8 +155,12 @@ export function useTable<T extends Record<string, any>>({
     try {
       const newItem = await crud.create(itemData);
       setData(prev => [...prev, newItem]);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create item');
+    } catch (err: any) {
+      if (err.response?.status === 401) {
+        setError('Authentication required. Please log in.');
+      } else {
+        setError(err instanceof Error ? err.message : 'Failed to create item');
+      }
     } finally {
       setIsCreating(false);
     }
@@ -163,8 +172,12 @@ export function useTable<T extends Record<string, any>>({
     try {
       const updatedItem = await crud.update(id, itemData);
       setData(prev => prev.map(item => (item.id === id ? updatedItem : item)));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update item');
+    } catch (err: any) {
+      if (err.response?.status === 401) {
+        setError('Authentication required. Please log in.');
+      } else {
+        setError(err instanceof Error ? err.message : 'Failed to update item');
+      }
     } finally {
       setIsUpdating(false);
     }
@@ -176,8 +189,12 @@ export function useTable<T extends Record<string, any>>({
     try {
       await crud.delete(id);
       setData(prev => prev.filter(item => item.id !== id));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete item');
+    } catch (err: any) {
+      if (err.response?.status === 401) {
+        setError('Authentication required. Please log in.');
+      } else {
+        setError(err instanceof Error ? err.message : 'Failed to delete item');
+      }
     } finally {
       setIsDeleting(false);
     }

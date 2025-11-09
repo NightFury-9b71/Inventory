@@ -1,9 +1,26 @@
-export interface Purchase {
+export interface PurchaseItem {
+  id?: number;
+  itemId: number;
+  itemName?: string;
+  itemCode?: string;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
+}
+
+export interface ItemInstance {
   id: number;
   itemId: number;
   itemName: string;
-  quantity: number;
+  purchaseId: number;
+  barcode: string;
   unitPrice: number;
+  status: 'IN_STOCK' | 'DISTRIBUTED' | 'DAMAGED' | 'LOST' | 'RETIRED';
+}
+
+export interface Purchase {
+  id: number;
+  items: PurchaseItem[];
   totalPrice: number;
   vendorName: string;
   vendorContact?: string;
@@ -18,9 +35,7 @@ export interface Purchase {
 }
 
 export interface PurchaseFormData {
-  itemId: number;
-  quantity: number;
-  unitPrice: number;
+  items: PurchaseItem[];
   vendorName: string;
   vendorContact?: string;
   purchaseDate: string; // ISO date string

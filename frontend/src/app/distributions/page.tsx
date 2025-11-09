@@ -87,7 +87,7 @@ export default function DistributionsPage() {
   });
 
   // Handle authentication error
-  if (error && error.includes('401')) {
+  if (error && error.includes('Authentication required')) {
     return (
       <div>
         <div className="text-center py-8">

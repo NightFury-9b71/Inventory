@@ -3,6 +3,8 @@ package bd.edu.just.backend.model;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "purchases")
@@ -12,15 +14,8 @@ public class Purchase {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "item_id", nullable = false)
-    private Item item;
-
-    @Column(name = "quantity", nullable = false)
-    private Integer quantity;
-
-    @Column(name = "unit_price", nullable = false)
-    private Double unitPrice;
+    @OneToMany(mappedBy = "purchase", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PurchaseItem> purchaseItems = new ArrayList<>();
 
     @Column(name = "total_price", nullable = false)
     private Double totalPrice;
@@ -57,31 +52,33 @@ public class Purchase {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
-        if (totalPrice == null && unitPrice != null && quantity != null) {
-            totalPrice = unitPrice * quantity;
-        }
+        calculateTotalPrice();
     }
 
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
-        if (totalPrice == null && unitPrice != null && quantity != null) {
-            totalPrice = unitPrice * quantity;
+        calculateTotalPrice();
+    }
+
+    private void calculateTotalPrice() {
+        if (purchaseItems != null && !purchaseItems.isEmpty()) {
+            totalPrice = purchaseItems.stream()
+                .mapToDouble(PurchaseItem::getTotalPrice)
+                .sum();
+        } else {
+            totalPrice = 0.0;
         }
     }
 
     public Purchase() {}
 
-    public Purchase(Item item, Integer quantity, Double unitPrice, String vendorName, 
-                   LocalDate purchaseDate, User purchasedBy) {
-        this.item = item;
-        this.quantity = quantity;
-        this.unitPrice = unitPrice;
-        this.totalPrice = unitPrice * quantity;
+    public Purchase(String vendorName, LocalDate purchaseDate, User purchasedBy) {
         this.vendorName = vendorName;
         this.purchaseDate = purchaseDate;
         this.purchasedBy = purchasedBy;
         this.isActive = true;
+        this.totalPrice = 0.0;
     }
 
     // Getters and Setters
@@ -93,28 +90,24 @@ public class Purchase {
         this.id = id;
     }
 
-    public Item getItem() {
-        return item;
+    public List<PurchaseItem> getPurchaseItems() {
+        return purchaseItems;
     }
 
-    public void setItem(Item item) {
-        this.item = item;
+    public void setPurchaseItems(List<PurchaseItem> purchaseItems) {
+        this.purchaseItems = purchaseItems;
     }
 
-    public Integer getQuantity() {
-        return quantity;
+    public void addPurchaseItem(PurchaseItem purchaseItem) {
+        purchaseItems.add(purchaseItem);
+        purchaseItem.setPurchase(this);
+        calculateTotalPrice();
     }
 
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
-    }
-
-    public Double getUnitPrice() {
-        return unitPrice;
-    }
-
-    public void setUnitPrice(Double unitPrice) {
-        this.unitPrice = unitPrice;
+    public void removePurchaseItem(PurchaseItem purchaseItem) {
+        purchaseItems.remove(purchaseItem);
+        purchaseItem.setPurchase(null);
+        calculateTotalPrice();
     }
 
     public Double getTotalPrice() {

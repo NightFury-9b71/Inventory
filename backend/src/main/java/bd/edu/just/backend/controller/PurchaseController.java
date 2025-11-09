@@ -1,6 +1,7 @@
 package bd.edu.just.backend.controller;
 
 import bd.edu.just.backend.dto.PurchaseDTO;
+import bd.edu.just.backend.dto.ItemInstanceDTO;
 import bd.edu.just.backend.service.PurchaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -46,12 +47,40 @@ public class PurchaseController {
     }
 
     @PostMapping
-    public ResponseEntity<PurchaseDTO> createPurchase(@RequestBody PurchaseDTO purchaseDTO) {
+    public ResponseEntity<?> createPurchase(@RequestBody PurchaseDTO purchaseDTO) {
         try {
+            // Validation
+            if (purchaseDTO.getItems() == null || purchaseDTO.getItems().isEmpty()) {
+                return ResponseEntity.badRequest().body("At least one item is required");
+            }
+            
+            if (purchaseDTO.getVendorName() == null || purchaseDTO.getVendorName().trim().isEmpty()) {
+                return ResponseEntity.badRequest().body("Vendor name is required");
+            }
+            
+            if (purchaseDTO.getPurchasedById() == null) {
+                return ResponseEntity.badRequest().body("Purchased by user ID is required");
+            }
+            
+            // Validate each item
+            for (int i = 0; i < purchaseDTO.getItems().size(); i++) {
+                var item = purchaseDTO.getItems().get(i);
+                if (item.getItemId() == null) {
+                    return ResponseEntity.badRequest().body("Item " + (i + 1) + ": Item ID is required");
+                }
+                if (item.getQuantity() == null || item.getQuantity() <= 0) {
+                    return ResponseEntity.badRequest().body("Item " + (i + 1) + ": Quantity must be greater than 0");
+                }
+                if (item.getUnitPrice() == null || item.getUnitPrice() < 0) {
+                    return ResponseEntity.badRequest().body("Item " + (i + 1) + ": Unit price must be 0 or greater");
+                }
+            }
+            
             PurchaseDTO created = purchaseService.createPurchase(purchaseDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(created);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Error creating purchase: " + e.getMessage());
         }
     }
 
@@ -62,6 +91,16 @@ public class PurchaseController {
             return ResponseEntity.ok(updated);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("/{id}/barcodes")
+    public ResponseEntity<List<ItemInstanceDTO>> getPurchaseBarcodes(@PathVariable Long id) {
+        try {
+            List<ItemInstanceDTO> barcodes = purchaseService.getItemInstancesByPurchase(id);
+            return ResponseEntity.ok(barcodes);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
         }
     }
 }

@@ -1,9 +1,10 @@
 import api from "@/lib/api";
-import { Purchase, PurchaseFormData } from "@/types/purchase";
+import { Purchase, PurchaseFormData, ItemInstance } from "@/types/purchase";
 
 export const ENDPOINTS = {
   get_purchases: "/purchases",
   purchase_by_id: (id: number) => `/purchases/${id}`,
+  purchase_barcodes: (id: number) => `/purchases/${id}/barcodes`,
   create_purchase: "/purchases",
   recent_purchases: "/purchases/recent",
   purchases_by_date_range: "/purchases/date-range",
@@ -20,7 +21,19 @@ export const getPurchaseById = async (id: number): Promise<Purchase> => {
 };
 
 export const createPurchase = async (purchase: PurchaseFormData): Promise<Purchase> => {
-  const response = await api.post(ENDPOINTS.create_purchase, purchase);
+  // Format the data to ensure proper types for backend
+  const formattedPurchase = {
+    ...purchase,
+    items: purchase.items.map(item => ({
+      itemId: Number(item.itemId),
+      quantity: Number(item.quantity),
+      unitPrice: Number(item.unitPrice),
+      totalPrice: Number(item.totalPrice),
+    })),
+    purchasedById: Number(purchase.purchasedById),
+  };
+  
+  const response = await api.post(ENDPOINTS.create_purchase, formattedPurchase);
   return response.data;
 };
 
@@ -38,5 +51,10 @@ export const getPurchasesByDateRange = async (startDate: string, endDate: string
   const response = await api.get(ENDPOINTS.purchases_by_date_range, {
     params: { startDate, endDate }
   });
+  return response.data;
+};
+
+export const getPurchaseBarcodes = async (id: number): Promise<ItemInstance[]> => {
+  const response = await api.get(ENDPOINTS.purchase_barcodes(id));
   return response.data;
 };

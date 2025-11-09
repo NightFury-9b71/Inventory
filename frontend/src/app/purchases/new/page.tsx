@@ -12,9 +12,12 @@ export default function NewPurchasePage() {
   const router = useRouter();
   const { user } = useAuth();
   const [purchase, setPurchase] = useState<PurchaseFormData>({
-    itemId: 0,
-    quantity: 0,
-    unitPrice: 0,
+    items: [{
+      itemId: 0,
+      quantity: 1,
+      unitPrice: 0,
+      totalPrice: 0,
+    }],
     vendorName: "",
     vendorContact: "",
     purchaseDate: new Date().toISOString().split('T')[0], // Today's date in YYYY-MM-DD format
@@ -36,10 +39,48 @@ export default function NewPurchasePage() {
     setError(null);
 
     try {
-      await createPurchase(purchase);
+      // Validate user authentication
+      if (!user?.id) {
+        throw new Error('User not authenticated. Please log in again.');
+      }
+
+      // Ensure purchasedById is set to current user
+      const purchaseData = {
+        ...purchase,
+        purchasedById: parseInt(user.id),
+      };
+
+      // Additional validation
+      if (purchaseData.items.length === 0) {
+        throw new Error('Please add at least one item to the purchase.');
+      }
+
+      const invalidItems = purchaseData.items.filter(
+        item => !item.itemId || item.quantity <= 0 || item.unitPrice <= 0
+      );
+      
+      if (invalidItems.length > 0) {
+        throw new Error('All items must have a valid item selected, quantity greater than 0, and unit price greater than 0.');
+      }
+
+      if (!purchaseData.vendorName || purchaseData.vendorName.trim() === '') {
+        throw new Error('Vendor name is required.');
+      }
+
+      if (!purchaseData.purchaseDate) {
+        throw new Error('Purchase date is required.');
+      }
+
+      console.log('Sending purchase data:', purchaseData);
+      await createPurchase(purchaseData);
       router.push('/purchases');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create purchase');
+    } catch (err: any) {
+      console.log('Error creating purchase:', err);
+      const errorMessage = err.response?.data?.message 
+        || err.response?.data 
+        || err.message 
+        || 'Failed to create purchase. Please check all required fields.';
+      setError(typeof errorMessage === 'string' ? errorMessage : JSON.stringify(errorMessage));
     } finally {
       setSaving(false);
     }

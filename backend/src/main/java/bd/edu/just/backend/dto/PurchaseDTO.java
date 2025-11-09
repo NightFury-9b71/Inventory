@@ -1,13 +1,12 @@
 package bd.edu.just.backend.dto;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PurchaseDTO {
     private Long id;
-    private Long itemId;
-    private String itemName;
-    private Integer quantity;
-    private Double unitPrice;
+    private List<PurchaseItemDTO> items = new ArrayList<>();
     private Double totalPrice;
     private String vendorName;
     private String vendorContact;
@@ -24,20 +23,21 @@ public class PurchaseDTO {
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     
-    public Long getItemId() { return itemId; }
-    public void setItemId(Long itemId) { this.itemId = itemId; }
+    public List<PurchaseItemDTO> getItems() { 
+        return items; 
+    }
     
-    public String getItemName() { return itemName; }
-    public void setItemName(String itemName) { this.itemName = itemName; }
+    public void setItems(List<PurchaseItemDTO> items) { 
+        this.items = items; 
+    }
     
-    public Integer getQuantity() { return quantity; }
-    public void setQuantity(Integer quantity) { this.quantity = quantity; }
+    public Double getTotalPrice() { 
+        return totalPrice; 
+    }
     
-    public Double getUnitPrice() { return unitPrice; }
-    public void setUnitPrice(Double unitPrice) { this.unitPrice = unitPrice; }
-    
-    public Double getTotalPrice() { return totalPrice; }
-    public void setTotalPrice(Double totalPrice) { this.totalPrice = totalPrice; }
+    public void setTotalPrice(Double totalPrice) { 
+        this.totalPrice = totalPrice; 
+    }
     
     public String getVendorName() { return vendorName; }
     public void setVendorName(String vendorName) { this.vendorName = vendorName; }

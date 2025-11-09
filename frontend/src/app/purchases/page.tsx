@@ -21,11 +21,8 @@ import { useRouter } from "next/navigation";
 export default function PurchaseTablePage() {
   const router = useRouter();
   const columns = [
-    { key: "itemName" as keyof Purchase, label: "Item" },
-    { key: "quantity" as keyof Purchase, label: "Quantity" },
-    { key: "unitPrice" as keyof Purchase, label: "Unit Price" },
-    { key: "totalPrice" as keyof Purchase, label: "Total Price" },
     { key: "vendorName" as keyof Purchase, label: "Vendor" },
+    { key: "totalPrice" as keyof Purchase, label: "Total Price" },
     { key: "purchaseDate" as keyof Purchase, label: "Purchase Date" },
     { key: "invoiceNumber" as keyof Purchase, label: "Invoice Number" },
     { key: "purchasedByName" as keyof Purchase, label: "Purchased By" },
@@ -62,7 +59,7 @@ export default function PurchaseTablePage() {
   } = useTable({
     data: [],
     columns,
-    searchableKeys: ['itemName', 'vendorName', 'invoiceNumber', 'purchasedByName'],
+    searchableKeys: ['vendorName', 'invoiceNumber', 'purchasedByName'],
     filterableKeys: ['isActive'],
     pagination: {
       enabled: true,
@@ -73,6 +70,22 @@ export default function PurchaseTablePage() {
       getAll: getPurchases,
     },
   });
+
+  // Handle authentication error
+  if (error && error.includes('Authentication required')) {
+    return (
+      <div className="p-6">
+        <div className="text-center py-8">
+          <Plus className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Authentication Required</h2>
+          <p className="text-gray-600 mb-4">Please log in to access purchase management.</p>
+          <Button onClick={() => router.push('/login')}>
+            Go to Login
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   if (error) {
     return (

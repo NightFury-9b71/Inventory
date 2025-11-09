@@ -5,15 +5,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import bd.edu.just.backend.model.Purchase;
-import bd.edu.just.backend.model.Item;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @Repository
 public interface PurchaseRepository extends JpaRepository<Purchase, Long> {
-    
-    List<Purchase> findByItem(Item item);
     
     List<Purchase> findByIsActiveTrue();
     
@@ -26,9 +23,12 @@ public interface PurchaseRepository extends JpaRepository<Purchase, Long> {
     @Query("SELECT SUM(p.totalPrice) FROM Purchase p WHERE p.isActive = true")
     Double getTotalPurchaseValue();
     
-    @Query("SELECT SUM(p.quantity) FROM Purchase p WHERE p.item.id = :itemId AND p.isActive = true")
+    @Query("SELECT SUM(pi.quantity) FROM PurchaseItem pi WHERE pi.item.id = :itemId AND pi.purchase.isActive = true")
     Long getTotalQuantityPurchasedForItem(@Param("itemId") Long itemId);
     
     @Query("SELECT p FROM Purchase p WHERE p.isActive = true ORDER BY p.purchaseDate DESC")
     List<Purchase> findRecentPurchases();
+    
+    @Query("SELECT DISTINCT p FROM Purchase p JOIN p.purchaseItems pi WHERE pi.item.id = :itemId AND p.isActive = true")
+    List<Purchase> findByItemId(@Param("itemId") Long itemId);
 }

@@ -3,7 +3,7 @@
 import React from "react";
 import { Purchase } from "@/types/purchase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ShoppingCart, Package, DollarSign, User, CheckCircle, XCircle } from "lucide-react";
+import { ShoppingCart, Package, DollarSign, User, CheckCircle, XCircle, Calendar } from "lucide-react";
 
 type Props = {
   purchase: Purchase;
@@ -19,36 +19,6 @@ export default function PurchaseInfoCard({ purchase }: Props) {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Item Name and Quantity side by side */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="text-sm font-medium text-gray-500">Item</label>
-            <p className="text-lg font-semibold">{purchase.itemName}</p>
-          </div>
-          <div>
-            <label className="text-sm font-medium text-gray-500">Quantity</label>
-            <p className="text-lg">{purchase.quantity}</p>
-          </div>
-        </div>
-
-        {/* Unit Price and Total Price side by side */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="text-sm font-medium text-gray-500">Unit Price</label>
-                        <p className="flex items-center gap-2">
-              <DollarSign className="h-4 w-4" />
-              <span className="font-mono text-lg">{purchase.unitPrice.toFixed(2)} Tk</span>
-            </p>
-          </div>
-          <div>
-            <label className="text-sm font-medium text-gray-500">Total Price</label>
-            <p className="flex items-center gap-2">
-              <DollarSign className="h-4 w-4" />
-              <span className="font-mono text-lg font-semibold">{purchase.totalPrice.toFixed(2)} Tk</span>
-            </p>
-          </div>
-        </div>
-
         {/* Vendor Name */}
         <div>
           <label className="text-sm font-medium text-gray-500">Vendor</label>
@@ -58,10 +28,22 @@ export default function PurchaseInfoCard({ purchase }: Props) {
           </p>
         </div>
 
+        {/* Total Price */}
+        <div>
+          <label className="text-sm font-medium text-gray-500">Total Price</label>
+          <p className="flex items-center gap-2">
+            <DollarSign className="h-4 w-4" />
+            <span className="font-mono text-lg font-semibold">{purchase.totalPrice?.toFixed(2)} Tk</span>
+          </p>
+        </div>
+
         {/* Purchase Date */}
         <div>
           <label className="text-sm font-medium text-gray-500">Purchase Date</label>
-          <p className="text-lg">{new Date(purchase.purchaseDate).toLocaleDateString()}</p>
+          <p className="flex items-center gap-2">
+            <Calendar className="h-4 w-4" />
+            <span className="text-lg">{new Date(purchase.purchaseDate).toLocaleDateString()}</span>
+          </p>
         </div>
 
         {/* Status */}
@@ -80,6 +62,24 @@ export default function PurchaseInfoCard({ purchase }: Props) {
               </>
             )}
           </p>
+        </div>
+
+        {/* Items */}
+        <div>
+          <label className="text-sm font-medium text-gray-500">Items Purchased</label>
+          <div className="mt-2 space-y-2">
+            {purchase.items.map((item, index) => (
+              <div key={index} className="flex justify-between items-center py-2 px-3 bg-gray-50 rounded">
+                <div>
+                  <span className="text-sm font-medium">{item.itemName}</span>
+                  <span className="text-xs text-gray-500 ml-2">({item.itemCode})</span>
+                </div>
+                <div className="text-sm">
+                  Qty: {item.quantity} × {item.unitPrice.toFixed(2)} = {item.totalPrice.toFixed(2)} Tk
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </CardContent>
     </Card>

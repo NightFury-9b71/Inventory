@@ -71,16 +71,8 @@ export default function PurchaseDetailsCard({ purchase }: Props) {
           <label className="text-sm font-medium text-gray-500">Key Information</label>
           <div className="mt-2 space-y-2">
             <div className="flex justify-between items-center py-2 px-3 bg-gray-50 rounded">
-              <span className="text-sm text-gray-600">Item</span>
-              <span className="text-sm font-medium">{purchase.itemName}</span>
-            </div>
-            <div className="flex justify-between items-center py-2 px-3 bg-gray-50 rounded">
-              <span className="text-sm text-gray-600">Quantity</span>
-              <span className="text-sm font-medium">{purchase.quantity}</span>
-            </div>
-            <div className="flex justify-between items-center py-2 px-3 bg-gray-50 rounded">
               <span className="text-sm text-gray-600">Total Amount</span>
-              <span className="text-sm font-medium font-mono">{purchase.totalPrice.toFixed(2)} Tk</span>
+              <span className="text-sm font-medium font-mono">{purchase.totalPrice?.toFixed(2)} Tk</span>
             </div>
             <div className="flex justify-between items-center py-2 px-3 bg-gray-50 rounded">
               <span className="text-sm text-gray-600">Date</span>
@@ -91,6 +83,10 @@ export default function PurchaseDetailsCard({ purchase }: Props) {
               <span className={`text-sm font-medium ${purchase.isActive ? 'text-green-600' : 'text-red-600'}`}>
                 {purchase.isActive ? 'Active' : 'Inactive'}
               </span>
+            </div>
+            <div className="flex justify-between items-center py-2 px-3 bg-gray-50 rounded">
+              <span className="text-sm text-gray-600">Number of Items</span>
+              <span className="text-sm font-medium">{purchase.items.length}</span>
             </div>
           </div>
         </div>

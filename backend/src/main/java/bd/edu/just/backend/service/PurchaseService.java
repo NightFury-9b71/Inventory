@@ -1,10 +1,16 @@
 package bd.edu.just.backend.service;
 
 import bd.edu.just.backend.dto.PurchaseDTO;
+import bd.edu.just.backend.dto.PurchaseItemDTO;
+import bd.edu.just.backend.dto.ItemInstanceDTO;
 import bd.edu.just.backend.model.Purchase;
+import bd.edu.just.backend.model.PurchaseItem;
+import bd.edu.just.backend.model.ItemInstance;
 import bd.edu.just.backend.model.Item;
 import bd.edu.just.backend.model.User;
 import bd.edu.just.backend.repository.PurchaseRepository;
+import bd.edu.just.backend.repository.PurchaseItemRepository;
+import bd.edu.just.backend.repository.ItemInstanceRepository;
 import bd.edu.just.backend.repository.ItemRepository;
 import bd.edu.just.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,6 +29,12 @@ public class PurchaseService {
     private PurchaseRepository purchaseRepository;
 
     @Autowired
+    private PurchaseItemRepository purchaseItemRepository;
+
+    @Autowired
+    private ItemInstanceRepository itemInstanceRepository;
+
+    @Autowired
     private ItemRepository itemRepository;
 
     @Autowired
@@ -29,6 +42,9 @@ public class PurchaseService {
 
     @Autowired
     private ItemService itemService;
+
+    @Autowired
+    private BarcodeGenerationService barcodeGenerationService;
 
     public List<PurchaseDTO> getAllPurchases() {
         return purchaseRepository.findByIsActiveTrue().stream()
@@ -44,17 +60,11 @@ public class PurchaseService {
 
     @Transactional
     public PurchaseDTO createPurchase(PurchaseDTO purchaseDTO) {
-        Item item = itemRepository.findById(purchaseDTO.getItemId())
-                .orElseThrow(() -> new RuntimeException("Item not found"));
-
         User user = userRepository.findById(purchaseDTO.getPurchasedById())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        // Create the main Purchase entity
         Purchase purchase = new Purchase();
-        purchase.setItem(item);
-        purchase.setQuantity(purchaseDTO.getQuantity());
-        purchase.setUnitPrice(purchaseDTO.getUnitPrice());
-        purchase.setTotalPrice(purchaseDTO.getUnitPrice() * purchaseDTO.getQuantity());
         purchase.setVendorName(purchaseDTO.getVendorName());
         purchase.setVendorContact(purchaseDTO.getVendorContact());
         purchase.setPurchaseDate(purchaseDTO.getPurchaseDate() != null ? 
@@ -64,10 +74,55 @@ public class PurchaseService {
         purchase.setPurchasedBy(user);
         purchase.setIsActive(true);
 
+        // Save the purchase first to get the ID
         Purchase savedPurchase = purchaseRepository.save(purchase);
 
-        // Update item stock
-        itemService.updateStock(item.getId(), purchaseDTO.getQuantity());
+        // Process each item in the purchase
+        for (PurchaseItemDTO itemDTO : purchaseDTO.getItems()) {
+            Item item = itemRepository.findById(itemDTO.getItemId())
+                    .orElseThrow(() -> new RuntimeException("Item not found with id: " + itemDTO.getItemId()));
+
+            // Create PurchaseItem
+            PurchaseItem purchaseItem = new PurchaseItem();
+            purchaseItem.setPurchase(savedPurchase);
+            purchaseItem.setItem(item);
+            purchaseItem.setQuantity(itemDTO.getQuantity());
+            purchaseItem.setUnitPrice(itemDTO.getUnitPrice());
+            purchaseItem.setTotalPrice(itemDTO.getQuantity() * itemDTO.getUnitPrice());
+
+            purchaseItemRepository.save(purchaseItem);
+
+            // Generate barcodes and create ItemInstance for each quantity
+            for (int i = 0; i < itemDTO.getQuantity(); i++) {
+                String barcode = barcodeGenerationService.generateBarcode(
+                    item.getCode(), 
+                    savedPurchase.getId()
+                );
+
+                ItemInstance itemInstance = new ItemInstance();
+                itemInstance.setItem(item);
+                itemInstance.setPurchase(savedPurchase);
+                itemInstance.setBarcode(barcode);
+                itemInstance.setUnitPrice(itemDTO.getUnitPrice());
+                itemInstance.setStatus(ItemInstance.ItemInstanceStatus.IN_STOCK);
+
+                itemInstanceRepository.save(itemInstance);
+            }
+
+            // Update item stock
+            itemService.updateStock(item.getId(), itemDTO.getQuantity());
+        }
+
+        // Calculate and set total price
+        double totalPrice = purchaseDTO.getItems().stream()
+            .mapToDouble(item -> item.getQuantity() * item.getUnitPrice())
+            .sum();
+        savedPurchase.setTotalPrice(totalPrice);
+        savedPurchase = purchaseRepository.save(savedPurchase);
+
+        // Reload the purchase with all relationships
+        savedPurchase = purchaseRepository.findById(savedPurchase.getId())
+                .orElseThrow(() -> new RuntimeException("Failed to reload purchase"));
 
         return convertToDTO(savedPurchase);
     }
@@ -77,20 +132,18 @@ public class PurchaseService {
         Purchase existingPurchase = purchaseRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Purchase not found with id: " + id));
 
-        Item item = itemRepository.findById(purchaseDTO.getItemId())
-                .orElseThrow(() -> new RuntimeException("Item not found"));
-
         User user = userRepository.findById(purchaseDTO.getPurchasedById())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Reverse previous stock update
-        itemService.updateStock(existingPurchase.getItem().getId(), -existingPurchase.getQuantity());
+        // Reverse previous stock updates
+        for (PurchaseItem pi : existingPurchase.getPurchaseItems()) {
+            itemService.updateStock(pi.getItem().getId(), -pi.getQuantity());
+        }
+
+        // Clear old purchase items and item instances
+        existingPurchase.getPurchaseItems().clear();
 
         // Update purchase fields
-        existingPurchase.setItem(item);
-        existingPurchase.setQuantity(purchaseDTO.getQuantity());
-        existingPurchase.setUnitPrice(purchaseDTO.getUnitPrice());
-        existingPurchase.setTotalPrice(purchaseDTO.getUnitPrice() * purchaseDTO.getQuantity());
         existingPurchase.setVendorName(purchaseDTO.getVendorName());
         existingPurchase.setVendorContact(purchaseDTO.getVendorContact());
         existingPurchase.setPurchaseDate(purchaseDTO.getPurchaseDate());
@@ -98,10 +151,42 @@ public class PurchaseService {
         existingPurchase.setRemarks(purchaseDTO.getRemarks());
         existingPurchase.setPurchasedBy(user);
 
-        Purchase updatedPurchase = purchaseRepository.save(existingPurchase);
+        // Add new items
+        for (PurchaseItemDTO itemDTO : purchaseDTO.getItems()) {
+            Item item = itemRepository.findById(itemDTO.getItemId())
+                    .orElseThrow(() -> new RuntimeException("Item not found with id: " + itemDTO.getItemId()));
 
-        // Update item stock with new quantity
-        itemService.updateStock(item.getId(), purchaseDTO.getQuantity());
+            PurchaseItem purchaseItem = new PurchaseItem();
+            purchaseItem.setPurchase(existingPurchase);
+            purchaseItem.setItem(item);
+            purchaseItem.setQuantity(itemDTO.getQuantity());
+            purchaseItem.setUnitPrice(itemDTO.getUnitPrice());
+            purchaseItem.setTotalPrice(itemDTO.getQuantity() * itemDTO.getUnitPrice());
+
+            existingPurchase.addPurchaseItem(purchaseItem);
+
+            // Generate barcodes for new items
+            for (int i = 0; i < itemDTO.getQuantity(); i++) {
+                String barcode = barcodeGenerationService.generateBarcode(
+                    item.getCode(), 
+                    existingPurchase.getId()
+                );
+
+                ItemInstance itemInstance = new ItemInstance();
+                itemInstance.setItem(item);
+                itemInstance.setPurchase(existingPurchase);
+                itemInstance.setBarcode(barcode);
+                itemInstance.setUnitPrice(itemDTO.getUnitPrice());
+                itemInstance.setStatus(ItemInstance.ItemInstanceStatus.IN_STOCK);
+
+                itemInstanceRepository.save(itemInstance);
+            }
+
+            // Update item stock with new quantity
+            itemService.updateStock(item.getId(), itemDTO.getQuantity());
+        }
+
+        Purchase updatedPurchase = purchaseRepository.save(existingPurchase);
 
         return convertToDTO(updatedPurchase);
     }
@@ -119,13 +204,44 @@ public class PurchaseService {
                 .collect(Collectors.toList());
     }
 
+    public List<ItemInstanceDTO> getItemInstancesByPurchase(Long purchaseId) {
+        List<ItemInstance> instances = itemInstanceRepository.findByPurchaseId(purchaseId);
+        return instances.stream()
+                .map(this::convertItemInstanceToDTO)
+                .collect(Collectors.toList());
+    }
+
+    private ItemInstanceDTO convertItemInstanceToDTO(ItemInstance instance) {
+        ItemInstanceDTO dto = new ItemInstanceDTO();
+        dto.setId(instance.getId());
+        dto.setItemId(instance.getItem().getId());
+        dto.setItemName(instance.getItem().getName());
+        dto.setPurchaseId(instance.getPurchase().getId());
+        dto.setBarcode(instance.getBarcode());
+        dto.setUnitPrice(instance.getUnitPrice());
+        dto.setStatus(instance.getStatus().name());
+        return dto;
+    }
+
     private PurchaseDTO convertToDTO(Purchase purchase) {
         PurchaseDTO dto = new PurchaseDTO();
         dto.setId(purchase.getId());
-        dto.setItemId(purchase.getItem().getId());
-        dto.setItemName(purchase.getItem().getName());
-        dto.setQuantity(purchase.getQuantity());
-        dto.setUnitPrice(purchase.getUnitPrice());
+        
+        // Convert purchase items
+        List<PurchaseItemDTO> itemDTOs = new ArrayList<>();
+        for (PurchaseItem pi : purchase.getPurchaseItems()) {
+            PurchaseItemDTO itemDTO = new PurchaseItemDTO();
+            itemDTO.setId(pi.getId());
+            itemDTO.setItemId(pi.getItem().getId());
+            itemDTO.setItemName(pi.getItem().getName());
+            itemDTO.setItemCode(pi.getItem().getCode());
+            itemDTO.setQuantity(pi.getQuantity());
+            itemDTO.setUnitPrice(pi.getUnitPrice());
+            itemDTO.setTotalPrice(pi.getTotalPrice());
+            itemDTOs.add(itemDTO);
+        }
+        dto.setItems(itemDTOs);
+        
         dto.setTotalPrice(purchase.getTotalPrice());
         dto.setVendorName(purchase.getVendorName());
         dto.setVendorContact(purchase.getVendorContact());
