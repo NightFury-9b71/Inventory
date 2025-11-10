@@ -15,6 +15,7 @@ import {
 import { ItemCategory, CategoryFormData } from "@/types/item";
 import { getCategories, createCategory, updateCategory, deleteCategory } from "@/services/category_service";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function CategoryTablePage() {
   const columns = [
@@ -107,6 +108,9 @@ export default function CategoryTablePage() {
               Clear Filters
             </Button>
           )}
+          <Button asChild>
+            <Link href="/categories/new">Add New Category</Link>
+          </Button>
         </PageToolbar>
       </PageHeader>
 

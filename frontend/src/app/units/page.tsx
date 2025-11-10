@@ -15,6 +15,7 @@ import {
 import { Unit } from "@/types/unit";
 import { getUnits, createUnit, updateUnit, deleteUnit } from "@/services/unit_service";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function UnitTablePage() {
   const columns = [
@@ -107,6 +108,9 @@ export default function UnitTablePage() {
               Clear Filters
             </Button>
           )}
+          <Button asChild>
+            <Link href="/units/new">Add New Unit</Link>
+          </Button>
         </PageToolbar>
       </PageHeader>
 

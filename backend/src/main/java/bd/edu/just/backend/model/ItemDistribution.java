@@ -2,7 +2,6 @@ package bd.edu.just.backend.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import bd.edu.just.backend.model.User;
 
 @Entity
 @Table(name = "item_distributions")

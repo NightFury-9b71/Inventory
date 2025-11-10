@@ -187,6 +187,12 @@ public class PurchaseService {
             itemService.updateStock(item.getId(), itemDTO.getQuantity());
         }
 
+        // Calculate and set total price
+        double totalPrice = purchaseDTO.getItems().stream()
+            .mapToDouble(item -> item.getQuantity() * item.getUnitPrice())
+            .sum();
+        existingPurchase.setTotalPrice(totalPrice);
+
         Purchase updatedPurchase = purchaseRepository.save(existingPurchase);
 
         return convertToDTO(updatedPurchase);

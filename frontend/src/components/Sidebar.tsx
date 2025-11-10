@@ -18,7 +18,8 @@ import {
   QrCode,
   AlertTriangle,
   Building2,
-  TrendingUp
+  TrendingUp,
+  Ruler
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SidebarItems } from '@/types/constant';
@@ -46,7 +47,7 @@ export default function Sidebar() {
       items: [
         { icon: Package, label: 'Items', href: '/items' },
         { icon: FolderTree, label: 'Categories', href: '/categories' },
-        { icon: AlertTriangle, label: 'Low Stock', href: '/items?filter=low-stock' },
+        { icon: Ruler, label: 'Units', href: '/units' },
       ]
     },
     {

@@ -27,31 +27,31 @@ api.interceptors.request.use(
 );
 
 // Response interceptor - Handle errors globally
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      // Clear authentication data
-      Cookies.remove(KEY.auth_token);
-      Cookies.remove(KEY.user_info);
+// api.interceptors.response.use(
+//   (response) => response,
+//   (error) => {
+//     if (error.response?.status === 401) {
+//       // Clear authentication data
+//       Cookies.remove(KEY.auth_token);
+//       Cookies.remove(KEY.user_info);
       
-      // Only redirect if not already on login page
-      if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
-        window.location.href = '/login';
-      }
-    }
+//       // Only redirect if not already on login page
+//       if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+//         window.location.href = '/login';
+//       }
+//     }
     
-    // Log error details for debugging (only in development)
-    if (process.env.NODE_ENV === 'development' && error.response) {
-      console.log('API Error Response:', {
-        status: error.response.status,
-        data: error.response.data,
-        url: error.config?.url,
-      });
-    }
+//     // Log error details for debugging (only in development)
+//     if (process.env.NODE_ENV === 'development' && error.response) {
+//       console.log('API Error Response:', {
+//         status: error.response.status,
+//         data: error.response.data,
+//         url: error.config?.url,
+//       });
+//     }
     
-    return Promise.reject(error);
-  }
-);
+//     return Promise.reject(error);
+//   }
+// );
 
 export default api;

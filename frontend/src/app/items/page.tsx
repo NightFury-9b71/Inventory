@@ -15,6 +15,7 @@ import {
 import { Item, ItemFormData } from "@/types/item";
 import { getItems, createItem, updateItem, deleteItem } from "@/services/item_service";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function ItemTablePage() {
   const columns = [
@@ -109,6 +110,9 @@ export default function ItemTablePage() {
               Clear Filters
             </Button>
           )}
+          <Button asChild>
+            <Link href="/items/new">Add New Item</Link>
+          </Button>
         </PageToolbar>
       </PageHeader>
 
