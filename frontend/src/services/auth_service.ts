@@ -17,10 +17,11 @@ export enum UserRole {
 
 export interface User {
   id: string;
-  email?: string;
   username: string;
+  email?: string;
   name?: string;
-  role: UserRole;
+  role: string;
+  permissions: string[];
   officeId?: string;
   officeName?: string;
 }
@@ -50,8 +51,26 @@ export const login = async (credentials: LoginCredentials): Promise<LoginRespons
     });
 
     // Store token and user info
-    Cookies.set(KEY.auth_token, data.token);
-    Cookies.set(KEY.user_info, JSON.stringify(data.user));
+    // Use explicit cookie options so Next.js middleware can see the cookie when
+    // pages are requested. In production we use secure cookies.
+    const cookieOptions = {
+      path: '/',
+      sameSite: 'lax' as 'lax' | 'strict' | 'none',
+      secure: process.env.NODE_ENV === 'production',
+    };
+
+    // If user selected rememberMe, keep the cookie for 7 days; otherwise session cookie
+    const expires = credentials.rememberMe ? 7 : undefined;
+
+    Cookies.set(KEY.auth_token, data.token, { ...cookieOptions, expires });
+  // Encode user JSON to ensure safe cookie characters for cross-server reading
+  Cookies.set(KEY.user_info, encodeURIComponent(JSON.stringify(data.user)), { ...cookieOptions, expires });
+    if (process.env.NODE_ENV === 'development') {
+      console.debug('[auth_service] set cookies', {
+        auth_token: Cookies.get(KEY.auth_token),
+        user_info: Cookies.get(KEY.user_info),
+      });
+    }
     
     return data;
   } catch (error) {

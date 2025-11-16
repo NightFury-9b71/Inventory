@@ -9,13 +9,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.HashSet;
-import java.util.Set;
-
 @Configuration
 public class DataInitializer {
 
-    @Bean
+        @Bean
     public CommandLineRunner initDefaultUsers(UserRepository userRepository,
                                               RoleRepository roleRepository,
                                               PasswordEncoder passwordEncoder) {
@@ -26,16 +23,20 @@ public class DataInitializer {
             String demoUsername = "user";
             String demoPassword = "user123";
 
-            // Ensure roles exist
-            Role adminRole = roleRepository.findByName("ROLE_ADMIN").orElseGet(() -> {
+            // Ensure basic roles exist (for reference, actual assignments via designations)
+            roleRepository.findByName("ROLE_ADMIN").orElseGet(() -> {
                 Role newRole = new Role();
                 newRole.setName("ROLE_ADMIN");
+                newRole.setDescription("Administrator role");
+                newRole.setPurchasingPower(true);
                 return roleRepository.save(newRole);
             });
 
-            Role userRole = roleRepository.findByName("ROLE_USER").orElseGet(() -> {
+            roleRepository.findByName("ROLE_USER").orElseGet(() -> {
                 Role newRole = new Role();
                 newRole.setName("ROLE_USER");
+                newRole.setDescription("Regular user role");
+                newRole.setPurchasingPower(false);
                 return roleRepository.save(newRole);
             });
 
@@ -44,7 +45,9 @@ public class DataInitializer {
                 User adminUser = new User();
                 adminUser.setUsername(adminUsername);
                 adminUser.setPassword(passwordEncoder.encode(adminPassword));
-                adminUser.setRoles(new HashSet<>(Set.of(adminRole)));
+                adminUser.setName("System Administrator");
+                adminUser.setEmail("admin@just.edu.bd");
+                // Note: Designations will be created separately after offices are set up
                 userRepository.save(adminUser);
                 System.out.println("✅ Default admin user created");
             } else {
@@ -56,7 +59,9 @@ public class DataInitializer {
                 User demoUser = new User();
                 demoUser.setUsername(demoUsername);
                 demoUser.setPassword(passwordEncoder.encode(demoPassword));
-                demoUser.setRoles(new HashSet<>(Set.of(userRole)));
+                demoUser.setName("Demo User");
+                demoUser.setEmail("user@just.edu.bd");
+                // Note: Designations will be created separately after offices are set up
                 userRepository.save(demoUser);
                 System.out.println("✅ Demo user created");
             } else {

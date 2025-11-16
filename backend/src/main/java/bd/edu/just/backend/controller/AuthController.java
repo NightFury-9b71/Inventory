@@ -68,21 +68,17 @@ public class AuthController {
             return ResponseEntity.badRequest().body("Error: Username is already taken!");
         }
 
+        // Find default user role
         Optional<Role> userRoleOpt = roleRepository.findByName("ROLE_USER");
         if (userRoleOpt.isEmpty()) {
-            return ResponseEntity.badRequest().body("Error: Default role USER not found.");
+            return ResponseEntity.badRequest().body("Default user role not found. Please initialize roles first.");
         }
-
-        Role userRole = userRoleOpt.get();
 
         User user = new User();
         user.setUsername(signUpRequest.getUsername());
         user.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
 
-        Set<Role> roles = new HashSet<>();
-        roles.add(userRole);
-        user.setRoles(roles);
-
+        // Note: Designations will be assigned separately by administrators
         userRepository.save(user);
 
         return ResponseEntity.ok("User registered successfully!");

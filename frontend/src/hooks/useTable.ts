@@ -1,6 +1,47 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 
-type UseTableOptions<T> = {
+const POSSIBLE_COLLECTION_KEYS = ['data', 'items', 'content', 'results', 'rows'] as const;
+
+type ErrorWithStatus = {
+  response?: {
+    status?: number;
+  };
+};
+
+const getErrorStatus = (error: unknown): number | undefined => {
+  if (typeof error === 'object' && error !== null) {
+    return (error as ErrorWithStatus).response?.status;
+  }
+  return undefined;
+};
+
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  return error instanceof Error ? error.message : fallback;
+};
+
+const normalizeTableData = <T,>(value: unknown): T[] => {
+  if (Array.isArray(value)) {
+    return value as T[];
+  }
+
+  if (value && typeof value === 'object') {
+    const record = value as Record<string, unknown>;
+    for (const key of POSSIBLE_COLLECTION_KEYS) {
+      const candidate = record[key];
+      if (Array.isArray(candidate)) {
+        return candidate as T[];
+      }
+    }
+  }
+
+  if (process.env.NODE_ENV !== 'production') {
+    console.warn('[useTable] Expected array data but received:', value);
+  }
+
+  return [];
+};
+
+type UseTableOptions<T extends { id: string | number }> = {
   data: T[];
   columns: { key: keyof T; label: string }[];
   searchableKeys?: (keyof T)[];
@@ -19,18 +60,18 @@ type UseTableOptions<T> = {
   };
   expandable?: {
     enabled: boolean;
-    childrenKey?: string;
+    childrenKey?: keyof T & string;
   };
   crud?: {
     basePath: string;
-    getAll?: () => Promise<T[]>;
+    getAll?: () => Promise<T[] | Record<string, unknown>>;
     create?: (data: Partial<T>) => Promise<T>;
     update?: (id: string | number, data: Partial<T>) => Promise<T>;
     delete?: (id: string | number) => Promise<void>;
   };
 };
 
-export function useTable<T extends Record<string, any>>({
+export function useTable<T extends { id: string | number }>({
   data: initialData,
   columns,
   searchableKeys = [],
@@ -43,13 +84,27 @@ export function useTable<T extends Record<string, any>>({
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState<Record<string, string>>({});
   const [currentPage, setCurrentPage] = useState(1);
-  const [data, setData] = useState<T[]>(initialData);
+  const [data, setData] = useState<T[]>(Array.isArray(initialData) ? initialData : []);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [expandedRows, setExpandedRows] = useState<Set<string | number>>(new Set());
+  const hasFetchedRef = useRef(false);
+  const getAllFn = crud?.getAll;
+
+  const resolveError = useCallback(
+    (err: unknown, fallback: string) => {
+      const status = getErrorStatus(err);
+      if (status === 401) {
+        setError('Authentication required. Please log in.');
+      } else {
+        setError(getErrorMessage(err, fallback));
+      }
+    },
+    []
+  );
 
   const filteredData = useMemo(() => {
     let result = data;
@@ -66,8 +121,9 @@ export function useTable<T extends Record<string, any>>({
     // Apply filters
     Object.entries(filters).forEach(([key, value]) => {
       if (value && value !== 'all' && filterableKeys.includes(key as keyof T)) {
+        const typedKey = key as keyof T;
         result = result.filter((item) => {
-          const itemValue = item[key];
+          const itemValue = item[typedKey];
           if (typeof itemValue === 'boolean') {
             return String(itemValue) === value;
           }
@@ -130,24 +186,19 @@ export function useTable<T extends Record<string, any>>({
   };
 
   // CRUD operations
-  const fetchData = async () => {
-    if (!crud?.getAll) return;
+  const fetchData = useCallback(async () => {
+    if (!getAllFn) return;
     setIsLoading(true);
     setError(null);
     try {
-      const result = await crud.getAll();
-      setData(result);
-    } catch (err: any) {
-      // Check if it's an authentication error
-      if (err.response?.status === 401) {
-        setError('Authentication required. Please log in.');
-      } else {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-      }
+      const result = await getAllFn();
+      setData(normalizeTableData<T>(result));
+    } catch (err) {
+      resolveError(err, 'An error occurred');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [getAllFn, resolveError]);
 
   const createItem = async (itemData: Partial<T>) => {
     if (!crud?.create) return;
@@ -155,12 +206,8 @@ export function useTable<T extends Record<string, any>>({
     try {
       const newItem = await crud.create(itemData);
       setData(prev => [...prev, newItem]);
-    } catch (err: any) {
-      if (err.response?.status === 401) {
-        setError('Authentication required. Please log in.');
-      } else {
-        setError(err instanceof Error ? err.message : 'Failed to create item');
-      }
+    } catch (err) {
+      resolveError(err, 'Failed to create item');
     } finally {
       setIsCreating(false);
     }
@@ -172,12 +219,8 @@ export function useTable<T extends Record<string, any>>({
     try {
       const updatedItem = await crud.update(id, itemData);
       setData(prev => prev.map(item => (item.id === id ? updatedItem : item)));
-    } catch (err: any) {
-      if (err.response?.status === 401) {
-        setError('Authentication required. Please log in.');
-      } else {
-        setError(err instanceof Error ? err.message : 'Failed to update item');
-      }
+    } catch (err) {
+      resolveError(err, 'Failed to update item');
     } finally {
       setIsUpdating(false);
     }
@@ -189,12 +232,8 @@ export function useTable<T extends Record<string, any>>({
     try {
       await crud.delete(id);
       setData(prev => prev.filter(item => item.id !== id));
-    } catch (err: any) {
-      if (err.response?.status === 401) {
-        setError('Authentication required. Please log in.');
-      } else {
-        setError(err instanceof Error ? err.message : 'Failed to delete item');
-      }
+    } catch (err) {
+      resolveError(err, 'Failed to delete item');
     } finally {
       setIsDeleting(false);
     }
@@ -202,10 +241,12 @@ export function useTable<T extends Record<string, any>>({
 
   // Load data on mount if CRUD is configured
   useEffect(() => {
-    if (crud?.getAll && data.length === 0) {
-      fetchData();
+    if (!getAllFn || hasFetchedRef.current) {
+      return;
     }
-  }, []);
+    hasFetchedRef.current = true;
+    fetchData();
+  }, [getAllFn, fetchData]);
   const handleView = (row: T) => {
     if (actions.onView) {
       actions.onView(row);

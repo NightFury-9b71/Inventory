@@ -45,6 +45,9 @@ public class PurchaseService {
     private ItemService itemService;
 
     @Autowired
+    private DesignationService designationService;
+
+    @Autowired
     private BarcodeGenerationService barcodeGenerationService;
 
     public List<PurchaseDTO> getAllPurchases() {
@@ -95,10 +98,7 @@ public class PurchaseService {
 
             // Generate barcodes and create ItemInstance for each quantity
             for (int i = 0; i < itemDTO.getQuantity(); i++) {
-                String barcode = barcodeGenerationService.generateBarcode(
-                    item.getCode(), 
-                    savedPurchase.getId()
-                );
+                String barcode = barcodeGenerationService.generateBarcode(item.getCode());
 
                 ItemInstance itemInstance = new ItemInstance();
                 itemInstance.setItem(item);
@@ -106,6 +106,11 @@ public class PurchaseService {
                 itemInstance.setBarcode(barcode);
                 itemInstance.setUnitPrice(itemDTO.getUnitPrice());
                 itemInstance.setStatus(ItemInstance.ItemInstanceStatus.IN_STOCK);
+
+                // Set owner if user has purchasing power
+                if (designationService.hasUserPurchasingPower(user)) {
+                    itemInstance.setOwner(user);
+                }
 
                 itemInstanceRepository.save(itemInstance);
             }
@@ -168,10 +173,7 @@ public class PurchaseService {
 
             // Generate barcodes for new items
             for (int i = 0; i < itemDTO.getQuantity(); i++) {
-                String barcode = barcodeGenerationService.generateBarcode(
-                    item.getCode(), 
-                    existingPurchase.getId()
-                );
+                String barcode = barcodeGenerationService.generateBarcode(item.getCode());
 
                 ItemInstance itemInstance = new ItemInstance();
                 itemInstance.setItem(item);
@@ -179,6 +181,11 @@ public class PurchaseService {
                 itemInstance.setBarcode(barcode);
                 itemInstance.setUnitPrice(itemDTO.getUnitPrice());
                 itemInstance.setStatus(ItemInstance.ItemInstanceStatus.IN_STOCK);
+
+                // Set owner if user has purchasing power
+                if (designationService.hasUserPurchasingPower(user)) {
+                    itemInstance.setOwner(user);
+                }
 
                 itemInstanceRepository.save(itemInstance);
             }
@@ -245,6 +252,11 @@ public class PurchaseService {
             dto.setDistributedToOfficeName(instance.getDistributedToOffice().getName());
         }
         dto.setDistributedAt(instance.getDistributedAt());
+
+        if (instance.getOwner() != null) {
+            dto.setOwnerId(instance.getOwner().getId());
+            dto.setOwnerName(instance.getOwner().getName());
+        }
         
         return dto;
     }

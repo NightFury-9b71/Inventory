@@ -36,6 +36,10 @@ public class ItemInstance {
     @Column(name = "distributed_at")
     private LocalDateTime distributedAt;
 
+    @ManyToOne
+    @JoinColumn(name = "owner_id", nullable = false)
+    private User owner;
+
     @Column(name = "remarks")
     private String remarks;
 
@@ -58,11 +62,12 @@ public class ItemInstance {
 
     public ItemInstance() {}
 
-    public ItemInstance(Item item, Purchase purchase, String barcode, Double unitPrice) {
+    public ItemInstance(Item item, Purchase purchase, String barcode, Double unitPrice, User owner) {
         this.item = item;
         this.purchase = purchase;
         this.barcode = barcode;
         this.unitPrice = unitPrice;
+        this.owner = owner;
         this.status = ItemInstanceStatus.IN_STOCK;
     }
 
@@ -137,6 +142,14 @@ public class ItemInstance {
 
     public void setRemarks(String remarks) {
         this.remarks = remarks;
+    }
+
+    public User getOwner() {
+        return owner;
+    }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
     }
 
     public LocalDateTime getCreatedAt() {

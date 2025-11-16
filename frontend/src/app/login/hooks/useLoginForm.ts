@@ -41,6 +41,9 @@ export function useLoginForm(onLoginSuccess?: (data: LoginFormData) => void) {
     
     loginMutation.mutate(formData, {
       onSuccess: () => {
+        if (process.env.NODE_ENV === 'development') {
+          console.debug('[useLoginForm] login success, refreshing user and redirecting');
+        }
         toast.success("Welcome back!", {
           description: "You have successfully signed in to your account.",
         });

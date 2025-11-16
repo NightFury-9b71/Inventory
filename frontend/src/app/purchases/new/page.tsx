@@ -12,7 +12,7 @@ export default function NewPurchasePage() {
   const router = useRouter();
   const { user } = useAuth();
   const [purchase, setPurchase] = useState<PurchaseFormData>({
-    items: [{
+    purchaseItems: [{
       itemId: 0,
       quantity: 1,
       unitPrice: 0,
@@ -23,12 +23,12 @@ export default function NewPurchasePage() {
     purchaseDate: new Date().toISOString().split('T')[0], // Today's date in YYYY-MM-DD format
     invoiceNumber: "",
     remarks: "",
-    purchasedById: user?.id ? parseInt(user.id) : 0,
+    purchasedBy: user?.id ? parseInt(user.id) : 0,
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleInputChange = (field: string, value: any) => {
+  const handleInputChange = (field: string, value: unknown) => {
     setPurchase(prev => ({ ...prev, [field]: value }));
     setError(null); // Clear error on input change
   };
@@ -44,18 +44,18 @@ export default function NewPurchasePage() {
         throw new Error('User not authenticated. Please log in again.');
       }
 
-      // Ensure purchasedById is set to current user
+      // Ensure purchasedBy is set to current user
       const purchaseData = {
         ...purchase,
-        purchasedById: parseInt(user.id),
+        purchasedBy: parseInt(user.id),
       };
 
       // Additional validation
-      if (purchaseData.items.length === 0) {
+      if (purchaseData.purchaseItems.length === 0) {
         throw new Error('Please add at least one item to the purchase.');
       }
 
-      const invalidItems = purchaseData.items.filter(
+      const invalidItems = purchaseData.purchaseItems.filter(
         item => !item.itemId || item.quantity <= 0 || item.unitPrice <= 0
       );
       
@@ -71,16 +71,21 @@ export default function NewPurchasePage() {
         throw new Error('Purchase date is required.');
       }
 
-      console.log('Sending purchase data:', purchaseData);
+      console.error('Sending purchase data:', purchaseData);
       await createPurchase(purchaseData);
       router.push('/purchases');
-    } catch (err: any) {
-      console.log('Error creating purchase:', err);
-      const errorMessage = err.response?.data?.message 
-        || err.response?.data 
-        || err.message 
-        || 'Failed to create purchase. Please check all required fields.';
-      setError(typeof errorMessage === 'string' ? errorMessage : JSON.stringify(errorMessage));
+    } catch (err: unknown) {
+      console.error('Error creating purchase:', err);
+      let errorMessage = 'Failed to create purchase. Please check all required fields.';
+      
+      if (err instanceof Error) {
+        errorMessage = err.message;
+      } else if (typeof err === 'object' && err !== null && 'response' in err) {
+        const axiosError = err as { response?: { data?: { message?: string } } };
+        errorMessage = axiosError.response?.data?.message || 'Failed to create purchase';
+      }
+      
+      setError(errorMessage);
     } finally {
       setSaving(false);
     }

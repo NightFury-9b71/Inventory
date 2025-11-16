@@ -25,7 +25,7 @@ import { Button } from '@/components/ui/button';
 import { SidebarItems } from '@/types/constant';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import { canAccessRoute, Role } from '@/lib/polices';
+import { canAccessRoute, Role } from '@/lib/policies';
 
 
 export default function Sidebar() {

@@ -29,7 +29,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const storedUser = Cookies.get(KEY.user_info);
     if (storedUser) {
       try {
-        setUser(JSON.parse(storedUser));
+        // Try decode first; if that fails, try raw parse.
+        let parsed: any;
+        try {
+          parsed = JSON.parse(decodeURIComponent(storedUser));
+        } catch (e) {
+          parsed = JSON.parse(storedUser);
+        }
+  // Normalize role to remove 'ROLE_' prefix if present (backend might sometimes
+  // send ROLE_ADMIN vs ADMIN). This keeps the client-side role consistent with
+  // `UserRole` enum used across the UI.
+  if (parsed?.role) parsed.role = parsed.role.replace(/^ROLE_/, '');
+  setUser(parsed);
+        if (process.env.NODE_ENV === 'development') {
+          console.debug('[AuthProvider] storedUser', { storedUser, parsed });
+        }
       } catch (error) {
         console.error("Failed to parse stored user:", error);
         Cookies.remove(KEY.user_info);
@@ -46,7 +60,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const storedUser = Cookies.get(KEY.user_info);
     if (storedUser) {
       try {
-        setUser(JSON.parse(storedUser));
+        let parsed: any;
+        try {
+          parsed = JSON.parse(decodeURIComponent(storedUser));
+        } catch (e) {
+          parsed = JSON.parse(storedUser);
+        }
+  if (parsed?.role) parsed.role = parsed.role.replace(/^ROLE_/, '');
+  setUser(parsed);
+        if (process.env.NODE_ENV === 'development') {
+          console.debug('[AuthProvider] refreshUser', { storedUser, parsed });
+        }
       } catch (error) {
         console.error("Failed to parse stored user:", error);
         setUser(null);

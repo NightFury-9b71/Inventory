@@ -1,6 +1,7 @@
 package bd.edu.just.backend.service;
 import bd.edu.just.backend.model.Office;
 import bd.edu.just.backend.model.OfficeType;
+import bd.edu.just.backend.dto.OfficeResponseDTO;
 import bd.edu.just.backend.repository.OfficeRepository;
 
 import jakarta.transaction.Transactional;
@@ -36,6 +37,41 @@ public class OfficeServiceImpl implements OfficeService {
     @Override
     public List<Office> getAllOffices() {
         return officeRepository.findAll();
+    }
+
+    @Override
+    public List<OfficeResponseDTO> getAllOfficesDto() {
+        List<Office> offices = officeRepository.findAll();
+        return offices.stream()
+                .filter(office -> office.getParentOffice() == null) // Get only root offices
+                .map(this::convertToDto)
+                .toList();
+    }
+
+    private OfficeResponseDTO convertToDto(Office office) {
+        OfficeResponseDTO dto = new OfficeResponseDTO(
+            office.getId(),
+            office.getName(),
+            office.getNameBn(),
+            office.getParentOffice() != null ? office.getParentOffice().getId() : null,
+            office.getType(),
+            office.getCode(),
+            office.getDescription(),
+            office.getOrderIndex(),
+            office.getIsActive(),
+            office.getCreatedAt(),
+            office.getUpdatedAt()
+        );
+        
+        // Convert sub-offices without circular references
+        if (office.getSubOffices() != null && !office.getSubOffices().isEmpty()) {
+            List<OfficeResponseDTO> subOfficeDtos = office.getSubOffices().stream()
+                    .map(this::convertToDto)
+                    .toList();
+            dto.setSubOffices(subOfficeDtos);
+        }
+        
+        return dto;
     }
 
     @Override

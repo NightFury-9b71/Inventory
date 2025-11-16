@@ -18,7 +18,7 @@ type Props = {
   distribution: DistributionFormData;
   saving: boolean;
   error?: string | null;
-  onInputChange: (field: string, value: any) => void;
+  onInputChange: (field: string, value: unknown) => void;
   onSubmit: (e: React.FormEvent) => void;
   onCancel: () => void;
 };

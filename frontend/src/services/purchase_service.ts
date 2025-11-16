@@ -1,5 +1,5 @@
 import api from "@/lib/api";
-import { Purchase, PurchaseFormData, ItemInstance } from "@/types/purchase";
+import { Purchase, PurchaseFormData, ItemInstance, PurchaseItem } from "@/types/purchase";
 
 export const ENDPOINTS = {
   get_purchases: "/purchases",
@@ -24,14 +24,18 @@ export const getPurchaseById = async (id: number): Promise<Purchase> => {
 export const createPurchase = async (purchase: PurchaseFormData): Promise<Purchase> => {
   // Format the data to ensure proper types for backend
   const formattedPurchase = {
-    ...purchase,
-    items: purchase.items.map(item => ({
+    items: purchase.purchaseItems.map(item => ({
       itemId: Number(item.itemId),
       quantity: Number(item.quantity),
       unitPrice: Number(item.unitPrice),
       totalPrice: Number(item.totalPrice),
     })),
-    purchasedById: Number(purchase.purchasedById),
+    vendorName: purchase.vendorName,
+    vendorContact: purchase.vendorContact,
+    purchaseDate: purchase.purchaseDate,
+    invoiceNumber: purchase.invoiceNumber,
+    remarks: purchase.remarks,
+    purchasedById: Number(purchase.purchasedBy),
   };
   
   const response = await api.post(ENDPOINTS.create_purchase, formattedPurchase);

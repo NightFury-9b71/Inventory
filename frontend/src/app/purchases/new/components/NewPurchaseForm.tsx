@@ -16,7 +16,7 @@ type Props = {
   purchase: PurchaseFormData;
   saving: boolean;
   error?: string | null;
-  onInputChange: (field: string, value: any) => void;
+  onInputChange: (field: string, value: unknown) => void;
   onSubmit: (e: React.FormEvent) => void;
   onCancel: () => void;
 };
@@ -54,46 +54,46 @@ export default function NewPurchaseForm({
       unitPrice: 0,
       totalPrice: 0,
     };
-    onInputChange("items", [...purchase.items, newItem]);
+    onInputChange("purchaseItems", [...purchase.purchaseItems, newItem]);
   };
 
   const removeItem = (index: number) => {
-    const updatedItems = purchase.items.filter((_, i) => i !== index);
-    onInputChange("items", updatedItems);
+    const updatedItems = purchase.purchaseItems.filter((_, i) => i !== index);
+    onInputChange("purchaseItems", updatedItems);
   };
 
-  const updateItem = (index: number, field: keyof PurchaseItem, value: any) => {
-    const updatedItems = [...purchase.items];
+  const updateItem = (index: number, field: keyof PurchaseItem, value: unknown) => {
+    const updatedItems = [...purchase.purchaseItems];
     updatedItems[index] = { ...updatedItems[index], [field]: value };
     
     if (field === "quantity" || field === "unitPrice") {
-      const quantity = field === "quantity" ? value : updatedItems[index].quantity;
-      const unitPrice = field === "unitPrice" ? value : updatedItems[index].unitPrice;
+      const quantity = field === "quantity" ? (value as number) : updatedItems[index].quantity;
+      const unitPrice = field === "unitPrice" ? (value as number) : updatedItems[index].unitPrice;
       updatedItems[index].totalPrice = quantity * unitPrice;
     }
     
     if (field === "itemId") {
-      const selectedItem = items.find(item => item.id === value);
+      const selectedItem = items.find(item => item.id === (value as number));
       if (selectedItem) {
         updatedItems[index].itemName = selectedItem.name;
         updatedItems[index].itemCode = selectedItem.code;
       }
     }
     
-    onInputChange("items", updatedItems);
+    onInputChange("purchaseItems", updatedItems);
   };
 
   const calculateGrandTotal = () => {
-    return purchase.items.reduce((sum, item) => sum + (item.totalPrice || 0), 0).toFixed(2);
+    return purchase.purchaseItems.reduce((sum, item) => sum + (item.totalPrice || 0), 0).toFixed(2);
   };
 
   const isFormValid = () => {
-    if (purchase.items.length === 0) {
+    if (purchase.purchaseItems.length === 0) {
       return false;
     }
     
     // Check all items have valid data
-    const allItemsValid = purchase.items.every(item => 
+    const allItemsValid = purchase.purchaseItems.every(item => 
       item.itemId > 0 && 
       item.quantity > 0 && 
       item.unitPrice > 0
@@ -133,13 +133,13 @@ export default function NewPurchaseForm({
               </Button>
             </div>
 
-            {purchase.items.length === 0 && (
+            {purchase.purchaseItems.length === 0 && (
               <div className="text-center py-8 text-gray-500">
                 No items added yet. Click "Add Item" to start.
               </div>
             )}
 
-            {purchase.items.map((item, index) => (
+            {purchase.purchaseItems.map((item, index) => (
               <Card key={index} className="p-4 bg-gray-50">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="md:col-span-2">
@@ -189,7 +189,7 @@ export default function NewPurchaseForm({
               </Card>
             ))}
 
-            {purchase.items.length > 0 && (
+            {purchase.purchaseItems.length > 0 && (
               <div className="flex justify-end">
                 <div className="bg-primary/10 p-4 rounded-lg">
                   <Label className="text-lg">Grand Total:</Label>

@@ -1,6 +1,7 @@
 package bd.edu.just.backend.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
 
 @Entity
@@ -17,6 +18,7 @@ public class ItemDistribution {
 
     @ManyToOne
     @JoinColumn(name = "office_id", nullable = false)
+    @JsonIgnore
     private Office office;
 
     @ManyToOne

@@ -6,16 +6,20 @@ export interface PurchaseItem {
   quantity: number;
   unitPrice: number;
   totalPrice: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ItemInstance {
   id: number;
   itemId: number;
-  itemName: string;
+  itemName?: string;
   purchaseId: number;
   barcode: string;
   unitPrice: number;
   status: 'IN_STOCK' | 'DISTRIBUTED' | 'DAMAGED' | 'LOST' | 'RETIRED';
+  ownerId?: number;
+  ownerName?: string;
   distributedToOfficeId?: number;
   distributedToOfficeName?: string;
   distributedAt?: string;
@@ -26,14 +30,14 @@ export interface ItemInstance {
 
 export interface Purchase {
   id: number;
-  items: PurchaseItem[];
+  purchaseItems: PurchaseItem[];
   totalPrice: number;
   vendorName: string;
   vendorContact?: string;
   purchaseDate: string; // ISO date string
   invoiceNumber?: string;
   remarks?: string;
-  purchasedById: number;
+  purchasedBy: number;
   purchasedByName: string;
   isActive: boolean;
   createdAt?: string;
@@ -41,11 +45,11 @@ export interface Purchase {
 }
 
 export interface PurchaseFormData {
-  items: PurchaseItem[];
+  purchaseItems: PurchaseItem[];
   vendorName: string;
   vendorContact?: string;
   purchaseDate: string; // ISO date string
   invoiceNumber?: string;
   remarks?: string;
-  purchasedById: number;
+  purchasedBy: number;
 }

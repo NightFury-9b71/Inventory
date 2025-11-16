@@ -1,6 +1,6 @@
 "use client";
 import { useAuth } from "@/contexts/AuthContext";
-import { canPerformAction } from "@/lib/polices";
+import { canPerformAction } from "@/lib/policies";
 
 interface CanProps {
   page: string;

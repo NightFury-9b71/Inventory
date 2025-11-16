@@ -13,6 +13,8 @@ public class ItemInstanceDTO {
     private Long distributedToOfficeId;
     private String distributedToOfficeName;
     private LocalDateTime distributedAt;
+    private Long ownerId;
+    private String ownerName;
     private String remarks;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -90,6 +92,22 @@ public class ItemInstanceDTO {
 
     public void setDistributedToOfficeName(String distributedToOfficeName) {
         this.distributedToOfficeName = distributedToOfficeName;
+    }
+
+    public Long getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(Long ownerId) {
+        this.ownerId = ownerId;
+    }
+
+    public String getOwnerName() {
+        return ownerName;
+    }
+
+    public void setOwnerName(String ownerName) {
+        this.ownerName = ownerName;
     }
 
     public LocalDateTime getDistributedAt() {

@@ -25,15 +25,8 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "user_roles",
-        joinColumns = @JoinColumn(name = "user_id"),
-        inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> roles;
-
-    @ManyToOne
-    @JoinColumn(name = "office_id")
-    private Office office;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<Designation> designations;
 
     // getters and setters
     public Long getId() { return id; }
@@ -51,9 +44,6 @@ public class User {
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
 
-    public Set<Role> getRoles() { return roles; }
-    public void setRoles(Set<Role> roles) { this.roles = roles; }
-
-    public Office getOffice() { return office; }
-    public void setOffice(Office office) { this.office = office; }
+    public Set<Designation> getDesignations() { return designations; }
+    public void setDesignations(Set<Designation> designations) { this.designations = designations; }
 }

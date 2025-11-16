@@ -22,7 +22,7 @@ export default function NewDistributionPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleInputChange = (field: string, value: any) => {
+  const handleInputChange = (field: string, value: unknown) => {
     setDistribution(prev => ({ ...prev, [field]: value }));
     setError(null);
   };

@@ -2,10 +2,11 @@ package bd.edu.just.backend.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+// import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import bd.edu.just.backend.service.OfficeService;
 import bd.edu.just.backend.model.Office;
+import bd.edu.just.backend.dto.OfficeResponseDTO;
 import java.util.List;
 
 @RestController
@@ -26,14 +27,14 @@ public class OfficeController {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<Office>> getAllOffices() {
-        List<Office> offices = officeService.getAllOffices();
+    // @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<OfficeResponseDTO>> getAllOffices() {
+        List<OfficeResponseDTO> offices = officeService.getAllOfficesDto();
         return ResponseEntity.ok(offices);
     }
 
     @GetMapping("/parent")
-    @PreAuthorize("hasRole('ADMIN')")
+    // @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Office>> getAllParentOffices() {
         List<Office> parentOffices = officeService.getAllParentOffices();
         return ResponseEntity.ok(parentOffices);

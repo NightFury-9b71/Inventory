@@ -42,6 +42,8 @@ export function Table<T extends { id: string | number }>({
   expandedRows = new Set(),
   onToggleExpansion,
 }: TableProps<T>) {
+  const normalizedData = Array.isArray(data) ? data : [];
+
   const renderFlatRows = (rows: T[]) => {
     return rows.map((row, i) => (
       <TableRow key={row.id || i} className="hover:bg-gray-50">
@@ -82,11 +84,13 @@ export function Table<T extends { id: string | number }>({
   };
 
   const renderHierarchicalRows = (rows: T[], level: number = 0): React.ReactNode[] => {
-    return rows.flatMap((row, i) => {
+    return rows.reduce<React.ReactNode[]>((acc, row, i) => {
       const rowId = row.id || i;
       const isExpanded = expandedRows.has(rowId);
-      const children = (row as any)[childrenKey] as T[] | undefined;
-      const hasChildren = children && children.length > 0;
+      const rowRecord = row as unknown as Record<string, unknown>;
+      const rawChildren = childrenKey ? rowRecord[childrenKey] : undefined;
+      const children = Array.isArray(rawChildren) ? (rawChildren as T[]) : [];
+      const hasChildren = children.length > 0;
 
       const rowElement = (
         <TableRow key={rowId} className="hover:bg-gray-50">
@@ -158,11 +162,13 @@ export function Table<T extends { id: string | number }>({
 
       // If expanded and has children, render children after this row
       if (isExpanded && hasChildren) {
-        return [rowElement, ...renderHierarchicalRows(children, level + 1)];
+        acc.push(rowElement, ...renderHierarchicalRows(children, level + 1));
+        return acc;
       }
 
-      return [rowElement];
-    });
+      acc.push(rowElement);
+      return acc;
+    }, []);
   };
 
   return (
@@ -179,7 +185,7 @@ export function Table<T extends { id: string | number }>({
       </TableHeader>
 
       <TableBody>
-        {hasExpansion ? renderHierarchicalRows(data, 0) : renderFlatRows(data)}
+        {hasExpansion ? renderHierarchicalRows(normalizedData, 0) : renderFlatRows(normalizedData)}
       </TableBody>
     </UITable>
   );

@@ -9,7 +9,7 @@ export interface Distribution {
   quantity: number;
   dateDistributed: string;
   remarks?: string;
-  status: DistributionStatus;
+  status: string;
   isActive: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -24,10 +24,15 @@ export interface DistributionFormData {
   remarks?: string;
 }
 
-export enum DistributionStatus {
-  PENDING = 'PENDING',
-  APPROVED = 'APPROVED',
-  REJECTED = 'REJECTED',
-  COMPLETED = 'COMPLETED',
-  CANCELLED = 'CANCELLED'
+export interface OfficeInventory {
+  id: number;
+  officeId: number;
+  officeName: string;
+  itemId: number;
+  itemName: string;
+  itemCode: string;
+  quantity: number;
+  lastUpdated: string;
+  createdAt?: string;
+  updatedAt?: string;
 }

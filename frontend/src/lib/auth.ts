@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import type { Role } from "./polices";
+import type { Role } from "./policies";
 
 // Simple mock auth (replace with NextAuth/JWT later)
 export async function getUser() {

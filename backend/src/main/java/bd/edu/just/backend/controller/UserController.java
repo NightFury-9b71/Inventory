@@ -1,9 +1,10 @@
 package bd.edu.just.backend.controller;
 
-import bd.edu.just.backend.model.Role;
+import bd.edu.just.backend.model.Designation;
 import bd.edu.just.backend.model.User;
 import bd.edu.just.backend.model.UserDetailsResponse;
 import bd.edu.just.backend.repository.UserRepository;
+import bd.edu.just.backend.service.DesignationService;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -19,9 +20,11 @@ import java.util.stream.Collectors;
 public class UserController {
 
     private final UserRepository userRepository;
+    private final DesignationService designationService;
 
-    public UserController(UserRepository userRepository) {
+    public UserController(UserRepository userRepository, DesignationService designationService) {
         this.userRepository = userRepository;
+        this.designationService = designationService;
     }
 
     @GetMapping("/me")
@@ -34,8 +37,9 @@ public class UserController {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        List<String> roles = user.getRoles().stream()
-                                .map(Role::getName)
+        List<Designation> designations = designationService.getActiveDesignationsByUser(user);
+        List<String> roles = designations.stream()
+                                .map(designation -> designation.getRole().getName())
                                 .collect(Collectors.toList());
 
         UserDetailsResponse response = new UserDetailsResponse(user.getUsername(), roles);
